@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/engine.dart';
+import '../daily/daily_screen.dart';
 import 'game_controller.dart';
 import 'widgets/game_top_bar.dart';
 import 'widgets/number_pad.dart';
@@ -60,6 +61,13 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
       appBar: AppBar(
         title: const Text('Super Sudoku'),
         actions: [
+          IconButton(
+            tooltip: 'Daily puzzle',
+            icon: const Icon(Icons.calendar_today_outlined),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const DailyScreen()),
+            ),
+          ),
           IconButton(
             tooltip: 'New game',
             icon: const Icon(Icons.add_circle_outline),

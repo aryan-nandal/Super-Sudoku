@@ -35,6 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_riverpod: ^3.3.2
+  share_plus: ^13.2.0
   # NOTE: riverpod_generator (codegen) is intentionally omitted for now — its
   # stable release lags behind flutter_riverpod 3.3 / riverpod_annotation 4.x
   # and cannot co-resolve. Providers are written manually until then; switching
