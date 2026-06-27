@@ -1,12 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/daily_completion_repository.dart';
 import '../../data/daily_puzzle_service.dart';
+import '../../data/game_save_repository.dart';
+import '../../data/persistence_providers.dart';
 import '../../data/puzzle_generation_service.dart';
 import '../../domain/daily.dart';
 import '../../domain/puzzle_data.dart';
 import '../../domain/sudoku_game.dart';
 import '../../engine/engine.dart';
+
+/// Persistence slot id for the free-play game.
+const String _freeSlot = 'free';
 
 /// Produces a puzzle for a difficulty. Injected so tests can supply a
 /// deterministic fake instead of running the real generator in an isolate.
@@ -105,11 +111,15 @@ class GameState {
 class GameController extends Notifier<GameState> {
   late final PuzzleGenerator _generate;
   late final DailyGenerator _generateDaily;
+  late final GameSaveRepository _gameSaves;
+  late final DailyCompletionRepository _dailyCompletions;
 
   @override
   GameState build() {
     _generate = ref.read(puzzleGeneratorProvider);
     _generateDaily = ref.read(dailyGeneratorProvider);
+    _gameSaves = ref.read(gameSaveRepositoryProvider);
+    _dailyCompletions = ref.read(dailyCompletionRepositoryProvider);
     return const GameState.initial();
   }
 
@@ -124,6 +134,37 @@ class GameController extends Notifier<GameState> {
       startedAt: DateTime.now(),
       running: true,
     );
+    _saveFree();
+  }
+
+  /// Resume the saved free-play game if one exists and isn't already solved;
+  /// otherwise start a fresh game at [target].
+  Future<void> resumeOrNew(Difficulty target) async {
+    GameSnapshot? snap;
+    try {
+      snap = await _gameSaves.load(_freeSlot);
+    } catch (_) {
+      snap = null; // persistence unavailable (e.g. web without wasm) — start fresh
+    }
+    if (snap != null && !_snapshotSolved(snap)) {
+      final game = SudokuGame.restore(
+        solution: snap.solution,
+        puzzle: snap.puzzle,
+        values: snap.values,
+        notes: snap.notes,
+        mistakes: snap.mistakes,
+      );
+      state = GameState(
+        game: game,
+        difficulty: Difficulty.values[snap.difficultyIndex],
+        generating: false,
+        solved: false,
+        startedAt: DateTime.now().subtract(Duration(seconds: snap.elapsedSeconds)),
+        running: true,
+      );
+    } else {
+      await newGame(target);
+    }
   }
 
   /// Load and start the global Daily puzzle for [date] (deterministic).
@@ -186,6 +227,75 @@ class GameController extends Notifier<GameState> {
       running: state.running && !justSolved,
       finishedAt: justSolved ? DateTime.now() : null,
     );
+    _persistAfterMove(justSolved);
+  }
+
+  // --- Persistence -----------------------------------------------------------
+
+  void _persistAfterMove(bool justSolved) {
+    if (state.isDaily) {
+      if (justSolved) _recordDailyCompletion();
+    } else if (justSolved) {
+      _fireAndForget(_gameSaves.delete(_freeSlot)); // finished — nothing to resume
+    } else {
+      _saveFree();
+    }
+  }
+
+  /// Fire-and-forget a persistence write, swallowing failures so a broken
+  /// store (e.g. web without wasm) never disrupts play.
+  void _fireAndForget(Future<void> future) {
+    future.catchError((Object _) {});
+  }
+
+  void _saveFree() {
+    final game = state.game;
+    if (game == null || state.isDaily) return;
+    _fireAndForget(_gameSaves.save(
+      GameSnapshot(
+        id: _freeSlot,
+        puzzle: _givensOf(game),
+        solution: game.solution,
+        values: game.values,
+        notes: game.notes,
+        mistakes: game.mistakes,
+        elapsedSeconds: _elapsedSeconds(),
+        difficultyIndex: state.difficulty.index,
+      ),
+    ));
+  }
+
+  void _recordDailyCompletion() {
+    final r = dailyResult;
+    if (r == null) return;
+    _fireAndForget(_dailyCompletions.record(
+      DailyCompletionRecord(
+        date: dailyDateKey(r.date),
+        dayNumber: r.dayNumber,
+        difficultyIndex: r.difficulty.index,
+        timeSeconds: r.time.inSeconds,
+        mistakes: r.mistakes,
+        hints: r.hints,
+      ),
+    ));
+  }
+
+  /// Reconstruct the givens-only board from a game (givens are always correct).
+  List<int> _givensOf(SudokuGame game) =>
+      List<int>.generate(boardSize, (i) => game.given[i] ? game.solution[i] : 0);
+
+  int _elapsedSeconds() {
+    final s = state.startedAt;
+    if (s == null) return 0;
+    final end = state.running ? DateTime.now() : (state.finishedAt ?? s);
+    return end.difference(s).inSeconds;
+  }
+
+  bool _snapshotSolved(GameSnapshot s) {
+    for (var i = 0; i < boardSize; i++) {
+      if (s.values[i] != s.solution[i]) return false;
+    }
+    return true;
   }
 }
 

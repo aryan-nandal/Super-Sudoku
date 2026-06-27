@@ -152,6 +152,30 @@ void main() {
     });
   });
 
+  group('restore', () {
+    test('rebuilds givens from puzzle and restores progress on top', () {
+      final solution = parseBoard(solutionStr);
+      final puzzle = parseBoard(puzzleStr);
+      final values = List<int>.of(puzzle)..[2] = 4; // player filled cell 2
+      final notes = List<Set<int>>.generate(boardSize, (_) => <int>{});
+      notes[11] = {1, 3, 5};
+
+      final g = SudokuGame.restore(
+        solution: solution,
+        puzzle: puzzle,
+        values: values,
+        notes: notes,
+        mistakes: 3,
+      );
+
+      expect(g.given[0], isTrue); // original clue
+      expect(g.given[2], isFalse); // was empty in the puzzle
+      expect(g.values[2], 4);
+      expect(g.notes[11], {1, 3, 5});
+      expect(g.mistakes, 3);
+    });
+  });
+
   group('completion', () {
     test('isSolved becomes true when the final correct digit is placed', () {
       final solution = parseBoard(solutionStr);

@@ -26,7 +26,7 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
     super.initState();
     // Start a first game and a once-per-second clock tick.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(gameControllerProvider.notifier).newGame(Difficulty.easy);
+      ref.read(gameControllerProvider.notifier).resumeOrNew(Difficulty.easy);
     });
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});

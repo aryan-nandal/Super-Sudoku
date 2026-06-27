@@ -7,6 +7,8 @@ import 'package:super_sudoku/engine/engine.dart';
 import 'package:super_sudoku/features/game/board_screen.dart';
 import 'package:super_sudoku/features/game/game_controller.dart';
 
+import '../../helpers/test_db.dart';
+
 void main() {
   const puzzleStr =
       '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
@@ -25,6 +27,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          inMemoryDbOverride,
           puzzleGeneratorProvider.overrideWithValue((_) async => data),
         ],
         child: MaterialApp(theme: AppTheme.light(), home: const BoardScreen()),

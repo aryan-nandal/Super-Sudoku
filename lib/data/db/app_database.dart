@@ -1,0 +1,59 @@
+import 'package:drift/drift.dart';
+import 'package:drift_flutter/drift_flutter.dart';
+
+part 'app_database.g.dart';
+
+/// Typed key/value store for app settings (migration-friendly as settings grow).
+@DataClassName('KeyValueEntry')
+class KeyValueEntries extends Table {
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+
+  @override
+  Set<Column> get primaryKey => {key};
+}
+
+/// A resumable in-progress game (one row per slot, e.g. 'free' or 'daily').
+@DataClassName('GameSaveRow')
+class GameSaves extends Table {
+  TextColumn get id => text()();
+  TextColumn get puzzle => text()();
+  TextColumn get solution => text()();
+  TextColumn get cellValues => text()();
+  TextColumn get notes => text()();
+  IntColumn get mistakes => integer()();
+  IntColumn get elapsedSeconds => integer()();
+  IntColumn get difficultyIndex => integer()();
+  BoolColumn get isDaily => boolean()();
+  IntColumn get dayNumber => integer().withDefault(const Constant(0))();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Record of a completed Daily (keyed by yyyy-mm-dd) — powers "completed today"
+/// and, later, streaks and stats.
+@DataClassName('DailyCompletionRow')
+class DailyCompletions extends Table {
+  TextColumn get date => text()();
+  IntColumn get dayNumber => integer()();
+  IntColumn get difficultyIndex => integer()();
+  IntColumn get timeSeconds => integer()();
+  IntColumn get mistakes => integer()();
+  IntColumn get hints => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {date};
+}
+
+@DriftDatabase(tables: [KeyValueEntries, GameSaves, DailyCompletions])
+class AppDatabase extends _$AppDatabase {
+  AppDatabase(super.e);
+
+  /// Opens the on-device database for app use.
+  AppDatabase.open() : super(driftDatabase(name: 'super_sudoku'));
+
+  @override
+  int get schemaVersion => 1;
+}
