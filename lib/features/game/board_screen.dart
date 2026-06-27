@@ -5,7 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/engine.dart';
 import '../daily/daily_screen.dart';
+import '../settings/settings_controller.dart';
+import '../settings/settings_screen.dart';
 import 'game_controller.dart';
+import 'widgets/conflict_banner.dart';
 import 'widgets/game_top_bar.dart';
 import 'widgets/number_pad.dart';
 import 'widgets/sudoku_board.dart';
@@ -73,6 +76,13 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
             icon: const Icon(Icons.add_circle_outline),
             onPressed: _pickDifficulty,
           ),
+          IconButton(
+            tooltip: 'Settings',
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+            ),
+          ),
         ],
       ),
       body: SafeArea(
@@ -85,6 +95,7 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
 
   Widget _buildGame(GameState state, GameController notifier) {
     final game = state.game!;
+    final settings = ref.watch(settingsControllerProvider);
     return Column(
       children: [
         GameTopBar(
@@ -92,13 +103,20 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
           elapsed: _elapsed(state),
           mistakes: game.mistakes,
         ),
+        if (game.hasErrors) ConflictBanner(onRewind: notifier.clearErrors),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Center(
               child: AspectRatio(
                 aspectRatio: 1,
-                child: SudokuBoard(game: game, onCellTap: notifier.select),
+                child: SudokuBoard(
+                  game: game,
+                  onCellTap: notifier.select,
+                  highlightPeers: settings.highlightPeers,
+                  highlightDuplicates: settings.highlightDuplicates,
+                  autoCandidateNotes: settings.autoCandidateNotes,
+                ),
               ),
             ),
           ),
