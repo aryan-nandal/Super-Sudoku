@@ -3,12 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../engine/engine.dart';
-import '../daily/daily_screen.dart';
 import '../settings/settings_controller.dart';
-import '../settings/settings_screen.dart';
-import '../stats/stats_screen.dart';
 import 'game_controller.dart';
 import 'widgets/conflict_banner.dart';
 import 'widgets/game_top_bar.dart';
@@ -71,16 +69,12 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
           IconButton(
             tooltip: 'Daily puzzle',
             icon: const Icon(Icons.calendar_today_outlined),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const DailyScreen()),
-            ),
+            onPressed: () => context.push('/daily'),
           ),
           IconButton(
             tooltip: 'Stats',
             icon: const Icon(Icons.bar_chart_rounded),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const StatsScreen()),
-            ),
+            onPressed: () => context.push('/stats'),
           ),
           IconButton(
             tooltip: 'New game',
@@ -90,9 +84,7 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
           IconButton(
             tooltip: 'Settings',
             icon: const Icon(Icons.settings_outlined),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
-            ),
+            onPressed: () => context.push('/settings'),
           ),
         ],
       ),

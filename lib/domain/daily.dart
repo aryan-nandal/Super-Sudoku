@@ -77,7 +77,7 @@ String formatDuration(Duration d) {
 /// headline stats and a decorative performance grid, but never the solution.
 String buildDailyShareText(
   DailyResult result, {
-  String url = 'https://supersudoku.app',
+  String url = 'https://supersudoku.app/daily',
 }) {
   final grid = _performanceGrid(result.mistakes);
   return 'Super Sudoku Daily #${result.dayNumber}\n'
