@@ -22,13 +22,18 @@ class GameResultRecord {
 }
 
 /// Stores every solved game; basis for stats and post-game analytics.
+///
+/// [db] may be null when persistence is unavailable; then record no-ops and
+/// queries return empty.
 class GameResultsRepository {
-  final AppDatabase db;
+  final AppDatabase? db;
 
   GameResultsRepository(this.db);
 
-  Future<void> record(GameResultRecord r) {
-    return db.into(db.gameResults).insert(
+  Future<void> record(GameResultRecord r) async {
+    final database = db;
+    if (database == null) return;
+    await database.into(database.gameResults).insert(
           GameResultsCompanion.insert(
             difficultyIndex: r.difficultyIndex,
             timeSeconds: r.timeSeconds,
@@ -41,12 +46,16 @@ class GameResultsRepository {
   }
 
   Future<List<GameResultRecord>> all() async {
-    final rows = await db.select(db.gameResults).get();
+    final database = db;
+    if (database == null) return [];
+    final rows = await database.select(database.gameResults).get();
     return rows.map(_toRecord).toList();
   }
 
   Future<List<GameResultRecord>> forDifficulty(int difficultyIndex) async {
-    final rows = await (db.select(db.gameResults)
+    final database = db;
+    if (database == null) return [];
+    final rows = await (database.select(database.gameResults)
           ..where((t) => t.difficultyIndex.equals(difficultyIndex)))
         .get();
     return rows.map(_toRecord).toList();

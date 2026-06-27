@@ -30,13 +30,18 @@ String dailyDateKey(DateTime date) {
 }
 
 /// Stores Daily completions; powers "completed today" and (later) streaks/stats.
+///
+/// [db] may be null when persistence is unavailable; then writes no-op and
+/// queries return empty results.
 class DailyCompletionRepository {
-  final AppDatabase db;
+  final AppDatabase? db;
 
   DailyCompletionRepository(this.db);
 
-  Future<void> record(DailyCompletionRecord r) {
-    return db.into(db.dailyCompletions).insertOnConflictUpdate(
+  Future<void> record(DailyCompletionRecord r) async {
+    final database = db;
+    if (database == null) return;
+    await database.into(database.dailyCompletions).insertOnConflictUpdate(
           DailyCompletionsCompanion.insert(
             date: r.date,
             dayNumber: r.dayNumber,
@@ -48,7 +53,9 @@ class DailyCompletionRepository {
   }
 
   Future<DailyCompletionRecord?> forDate(String date) async {
-    final row = await (db.select(db.dailyCompletions)
+    final database = db;
+    if (database == null) return null;
+    final row = await (database.select(database.dailyCompletions)
           ..where((t) => t.date.equals(date)))
         .getSingleOrNull();
     if (row == null) return null;
@@ -59,7 +66,9 @@ class DailyCompletionRepository {
       (await forDate(date)) != null;
 
   Future<List<DailyCompletionRecord>> all() async {
-    final rows = await (db.select(db.dailyCompletions)
+    final database = db;
+    if (database == null) return [];
+    final rows = await (database.select(database.dailyCompletions)
           ..orderBy([(t) => OrderingTerm.asc(t.date)]))
         .get();
     return rows.map(_toRecord).toList();

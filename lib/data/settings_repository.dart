@@ -2,20 +2,27 @@ import 'db/app_database.dart';
 
 /// Typed access to persisted app settings, backed by a key/value table so new
 /// settings never require a schema migration.
+///
+/// [db] may be null when persistence is unavailable (e.g. web without the
+/// sqlite3 wasm assets); in that case reads return defaults and writes no-op.
 class SettingsRepository {
-  final AppDatabase db;
+  final AppDatabase? db;
 
   SettingsRepository(this.db);
 
   Future<String?> _raw(String key) async {
-    final row = await (db.select(db.keyValueEntries)
+    final database = db;
+    if (database == null) return null;
+    final row = await (database.select(database.keyValueEntries)
           ..where((t) => t.key.equals(key)))
         .getSingleOrNull();
     return row?.value;
   }
 
-  Future<void> _set(String key, String value) {
-    return db.into(db.keyValueEntries).insertOnConflictUpdate(
+  Future<void> _set(String key, String value) async {
+    final database = db;
+    if (database == null) return;
+    await database.into(database.keyValueEntries).insertOnConflictUpdate(
           KeyValueEntriesCompanion.insert(key: key, value: value),
         );
   }
