@@ -30,6 +30,10 @@ class SudokuBoard extends StatelessWidget {
   /// Hint disclosure tier: region highlight for 1–2, exact cell for 3.
   final int hintTier;
 
+  /// When true, conflicts also get a border (a non-color cue for color-blind
+  /// players) rather than relying on the red tint alone.
+  final bool colorBlindMode;
+
   const SudokuBoard({
     super.key,
     required this.game,
@@ -39,6 +43,7 @@ class SudokuBoard extends StatelessWidget {
     this.autoCandidateNotes = false,
     this.hintCell,
     this.hintTier = 0,
+    this.colorBlindMode = false,
   });
 
   @override
@@ -69,6 +74,7 @@ class SudokuBoard extends StatelessWidget {
                     autoCandidateNotes: autoCandidateNotes,
                     hintCell: hintCell,
                     hintTier: hintTier,
+                    colorBlindMode: colorBlindMode,
                     onTap: () => onCellTap(i),
                   ),
                 ),
@@ -100,6 +106,7 @@ class _Cell extends StatelessWidget {
   final bool autoCandidateNotes;
   final int? hintCell;
   final int hintTier;
+  final bool colorBlindMode;
   final VoidCallback onTap;
 
   const _Cell({
@@ -112,6 +119,7 @@ class _Cell extends StatelessWidget {
     required this.autoCandidateNotes,
     required this.hintCell,
     required this.hintTier,
+    required this.colorBlindMode,
     required this.onTap,
   });
 
@@ -123,6 +131,7 @@ class _Cell extends StatelessWidget {
     final isError = game.isError(index);
 
     final color = _backgroundColor(isSelected, selected, value);
+    final conflict = highlightDuplicates && game.isDuplicate(index);
 
     return GestureDetector(
       key: ValueKey('cell_$index'),
@@ -132,7 +141,13 @@ class _Cell extends StatelessWidget {
         label: _semanticLabel(value),
         selected: isSelected,
         child: Container(
-          color: color,
+          decoration: BoxDecoration(
+            color: color,
+            // A non-color cue for conflicts when color-blind mode is on.
+            border: (conflict && colorBlindMode)
+                ? Border.all(color: board.errorText, width: 2)
+                : null,
+          ),
           alignment: Alignment.center,
           child: _content(context, value, isError),
         ),

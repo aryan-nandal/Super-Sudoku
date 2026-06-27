@@ -19,6 +19,25 @@ void main() {
     expect(s.autoCandidateNotes, isFalse);
     expect(s.highlightDuplicates, isTrue);
     expect(s.highlightPeers, isTrue);
+    expect(s.colorBlindMode, isFalse);
+    expect(s.reducedMotion, isFalse);
+    expect(s.textScale, 1.0);
+  });
+
+  test('persists accessibility settings across a reload', () async {
+    final c = makeContainer();
+    final notifier = c.read(settingsControllerProvider.notifier);
+    await notifier.reload();
+
+    await notifier.setColorBlindMode(true);
+    await notifier.setReducedMotion(true);
+    await notifier.setTextScale(1.4);
+
+    await notifier.reload();
+    final s = c.read(settingsControllerProvider);
+    expect(s.colorBlindMode, isTrue);
+    expect(s.reducedMotion, isTrue);
+    expect(s.textScale, 1.4);
   });
 
   test('updates state and persists across a reload', () async {

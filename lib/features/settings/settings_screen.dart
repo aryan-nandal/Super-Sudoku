@@ -43,6 +43,40 @@ class SettingsScreen extends ConsumerWidget {
             value: settings.highlightPeers,
             onChanged: controller.setHighlightPeers,
           ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Text(
+              'Accessibility',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+          SwitchListTile(
+            key: const ValueKey('setting_color_blind'),
+            title: const Text('Color-blind friendly'),
+            subtitle: const Text('Mark conflicts with a border, not color alone.'),
+            value: settings.colorBlindMode,
+            onChanged: controller.setColorBlindMode,
+          ),
+          SwitchListTile(
+            key: const ValueKey('setting_reduced_motion'),
+            title: const Text('Reduce motion'),
+            subtitle: const Text('Minimize animations and transitions.'),
+            value: settings.reducedMotion,
+            onChanged: controller.setReducedMotion,
+          ),
+          ListTile(
+            title: const Text('Text size'),
+            subtitle: Slider(
+              key: const ValueKey('setting_text_scale'),
+              min: 0.8,
+              max: 1.6,
+              divisions: 8,
+              label: '${(settings.textScale * 100).round()}%',
+              value: settings.textScale,
+              onChanged: controller.setTextScale,
+            ),
+          ),
         ],
       ),
     );

@@ -154,6 +154,7 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
                   autoCandidateNotes: settings.autoCandidateNotes,
                   hintCell: state.hintStep?.cell,
                   hintTier: state.hintTier,
+                  colorBlindMode: settings.colorBlindMode,
                 ),
               ),
             ),
