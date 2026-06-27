@@ -152,6 +152,60 @@ void main() {
     });
   });
 
+  group('duplicate detection', () {
+    test('flags two equal values sharing a unit', () {
+      final g = freshGame()
+        ..select(2)
+        ..inputDigit(9)
+        ..select(3)
+        ..inputDigit(9); // cells 2 and 3 share row 0
+      expect(g.isDuplicate(2), isTrue);
+      expect(g.isDuplicate(3), isTrue);
+    });
+
+    test('a unique, correct value is not a duplicate; empty is not', () {
+      final g = freshGame()
+        ..select(2)
+        ..inputDigit(4); // solution[2]
+      expect(g.isDuplicate(2), isFalse);
+      expect(g.isDuplicate(5), isFalse); // empty cell
+    });
+  });
+
+  group('candidatesFor', () {
+    test('computes valid candidates for an empty cell', () {
+      final g = freshGame();
+      final c = g.candidatesFor(2);
+      expect(c, contains(4)); // the solution digit must be a candidate
+      expect(c, isNot(contains(5))); // 5 is given in the same row
+      expect(c, isNot(contains(3))); // 3 is given in the same row
+    });
+
+    test('a filled cell has no candidates', () {
+      final g = freshGame()
+        ..select(2)
+        ..inputDigit(4);
+      expect(g.candidatesFor(2), isEmpty);
+    });
+  });
+
+  group('error rewind guardrail', () {
+    test('hasErrors reflects wrong entries; clearErrors removes only those', () {
+      final g = freshGame()
+        ..select(2)
+        ..inputDigit(4) // correct
+        ..select(3)
+        ..inputDigit(9); // wrong (solution[3] == 6)
+      expect(g.hasErrors, isTrue);
+
+      g.clearErrors();
+      expect(g.hasErrors, isFalse);
+      expect(g.values[3], 0, reason: 'wrong entry cleared');
+      expect(g.values[2], 4, reason: 'correct entry kept');
+      expect(g.canUndo, isTrue, reason: 'rewind is undoable');
+    });
+  });
+
   group('restore', () {
     test('rebuilds givens from puzzle and restores progress on top', () {
       final solution = parseBoard(solutionStr);

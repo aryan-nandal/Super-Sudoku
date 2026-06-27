@@ -6,9 +6,11 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../domain/daily.dart';
 import '../game/game_controller.dart';
+import '../game/widgets/conflict_banner.dart';
 import '../game/widgets/game_top_bar.dart';
 import '../game/widgets/number_pad.dart';
 import '../game/widgets/sudoku_board.dart';
+import '../settings/settings_controller.dart';
 import 'widgets/daily_result_card.dart';
 
 /// Plays the global Daily puzzle (deterministic for today) and shows a
@@ -72,6 +74,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen> {
 
   Widget _buildGame(GameState state, GameController notifier) {
     final game = state.game!;
+    final settings = ref.watch(settingsControllerProvider);
     return Column(
       children: [
         GameTopBar(
@@ -79,13 +82,20 @@ class _DailyScreenState extends ConsumerState<DailyScreen> {
           elapsed: _elapsed(state),
           mistakes: game.mistakes,
         ),
+        if (game.hasErrors) ConflictBanner(onRewind: notifier.clearErrors),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Center(
               child: AspectRatio(
                 aspectRatio: 1,
-                child: SudokuBoard(game: game, onCellTap: notifier.select),
+                child: SudokuBoard(
+                  game: game,
+                  onCellTap: notifier.select,
+                  highlightPeers: settings.highlightPeers,
+                  highlightDuplicates: settings.highlightDuplicates,
+                  autoCandidateNotes: settings.autoCandidateNotes,
+                ),
               ),
             ),
           ),

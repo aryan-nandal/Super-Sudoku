@@ -215,6 +215,9 @@ class GameController extends Notifier<GameState> {
 
   void redo() => _mutate((g) => g.redo());
 
+  /// Rewind out of an unsolvable state by clearing wrong entries.
+  void clearErrors() => _mutate((g) => g.clearErrors());
+
   /// Applies [action] to the current game, then emits a refreshed state,
   /// flipping to solved (and stopping the clock) when the board is complete.
   void _mutate(void Function(SudokuGame game) action) {

@@ -81,6 +81,47 @@ class SudokuGame {
   bool isError(int i) =>
       values[i] != 0 && !given[i] && values[i] != solution[i];
 
+  /// Whether cell [i]'s value duplicates another value in the same row/col/box.
+  bool isDuplicate(int i) {
+    final v = values[i];
+    if (v == 0) return false;
+    for (final p in peers[i]) {
+      if (values[p] == v) return true;
+    }
+    return false;
+  }
+
+  /// Valid candidate digits for an empty cell (digits not already used by a
+  /// peer). Empty for a filled cell. Backs the optional auto-candidate display.
+  Set<int> candidatesFor(int i) {
+    if (values[i] != 0) return <int>{};
+    final used = <int>{};
+    for (final p in peers[i]) {
+      if (values[p] != 0) used.add(values[p]);
+    }
+    return {for (var d = 1; d <= 9; d++) if (!used.contains(d)) d};
+  }
+
+  /// Whether any non-given cell currently contradicts the solution.
+  bool get hasErrors {
+    for (var i = 0; i < boardSize; i++) {
+      if (isError(i)) return true;
+    }
+    return false;
+  }
+
+  /// Rewind out of an unsolvable state by clearing every wrong entry (the
+  /// solvable-state guardrail — replaces a punitive mistake-limit game-over).
+  void clearErrors() {
+    if (!hasErrors) return;
+    _recordForUndo();
+    for (var i = 0; i < boardSize; i++) {
+      if (values[i] != 0 && !given[i] && values[i] != solution[i]) {
+        values[i] = 0;
+      }
+    }
+  }
+
   /// Whether cell [i] is a peer of cell [of] (shares a row/col/box).
   bool isPeer(int i, int of) => peers[of].contains(i);
 

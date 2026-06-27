@@ -57,4 +57,35 @@ void main() {
     // Unmount to dispose the clock timer cleanly.
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets('a wrong entry shows the conflict banner; rewind clears it',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          inMemoryDbOverride,
+          puzzleGeneratorProvider.overrideWithValue((_) async => data),
+        ],
+        child: MaterialApp(theme: AppTheme.light(), home: const BoardScreen()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
+
+    // cell 2's solution is 4 — entering 5 is wrong.
+    await tester.tap(find.byKey(const ValueKey('cell_2')));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('digit_5')));
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('conflict_banner')), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('rewind_button')));
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('conflict_banner')), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 }

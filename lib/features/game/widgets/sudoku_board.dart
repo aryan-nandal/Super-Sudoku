@@ -15,7 +15,23 @@ class SudokuBoard extends StatelessWidget {
   final SudokuGame game;
   final void Function(int index) onCellTap;
 
-  const SudokuBoard({super.key, required this.game, required this.onCellTap});
+  /// Highlight cells sharing a unit with the selection.
+  final bool highlightPeers;
+
+  /// Tint cells whose value conflicts with a peer (duplicate in a unit).
+  final bool highlightDuplicates;
+
+  /// Show computed candidates in empty cells that have no user notes.
+  final bool autoCandidateNotes;
+
+  const SudokuBoard({
+    super.key,
+    required this.game,
+    required this.onCellTap,
+    this.highlightPeers = true,
+    this.highlightDuplicates = true,
+    this.autoCandidateNotes = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +56,9 @@ class SudokuBoard extends StatelessWidget {
                     game: game,
                     board: board,
                     size: cell,
+                    highlightPeers: highlightPeers,
+                    highlightDuplicates: highlightDuplicates,
+                    autoCandidateNotes: autoCandidateNotes,
                     onTap: () => onCellTap(i),
                   ),
                 ),
@@ -66,6 +85,9 @@ class _Cell extends StatelessWidget {
   final SudokuGame game;
   final BoardTheme board;
   final double size;
+  final bool highlightPeers;
+  final bool highlightDuplicates;
+  final bool autoCandidateNotes;
   final VoidCallback onTap;
 
   const _Cell({
@@ -73,6 +95,9 @@ class _Cell extends StatelessWidget {
     required this.game,
     required this.board,
     required this.size,
+    required this.highlightPeers,
+    required this.highlightDuplicates,
+    required this.autoCandidateNotes,
     required this.onTap,
   });
 
@@ -83,7 +108,7 @@ class _Cell extends StatelessWidget {
     final isSelected = selected == index;
     final isError = game.isError(index);
 
-    final color = _backgroundColor(isSelected, isError, selected, value);
+    final color = _backgroundColor(isSelected, selected, value);
 
     return GestureDetector(
       key: ValueKey('cell_$index'),
@@ -101,18 +126,17 @@ class _Cell extends StatelessWidget {
     );
   }
 
-  Color _backgroundColor(
-    bool isSelected,
-    bool isError,
-    int? selected,
-    int value,
-  ) {
+  Color _backgroundColor(bool isSelected, int? selected, int value) {
     if (isSelected) return board.selectedCellBackground;
-    if (isError) return board.errorCellBackground;
+    if (highlightDuplicates && game.isDuplicate(index)) {
+      return board.errorCellBackground;
+    }
     if (selected != null && selected != index) {
       final selValue = game.values[selected];
       if (value != 0 && selValue == value) return board.sameValueBackground;
-      if (game.isPeer(index, selected)) return board.peerCellBackground;
+      if (highlightPeers && game.isPeer(index, selected)) {
+        return board.peerCellBackground;
+      }
     }
     return board.cellBackground;
   }
@@ -133,6 +157,16 @@ class _Cell extends StatelessWidget {
     }
     if (game.notes[index].isNotEmpty) {
       return _Notes(notes: game.notes[index], size: size, color: board.noteText);
+    }
+    if (autoCandidateNotes) {
+      final candidates = game.candidatesFor(index);
+      if (candidates.isNotEmpty) {
+        return _Notes(
+          notes: candidates,
+          size: size,
+          color: board.noteText.withValues(alpha: 0.45),
+        );
+      }
     }
     return const SizedBox.shrink();
   }
