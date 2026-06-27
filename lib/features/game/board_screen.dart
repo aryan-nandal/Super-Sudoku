@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/engine.dart';
@@ -58,6 +59,7 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
 
     ref.listen<GameState>(gameControllerProvider, (prev, next) {
       if (next.solved && (prev?.solved != true)) {
+        HapticFeedback.mediumImpact();
         _showWinDialog(next);
       }
     });
@@ -161,7 +163,10 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
           ),
         ),
         NumberPad(
-          onDigit: notifier.input,
+          onDigit: (d) {
+            HapticFeedback.selectionClick();
+            notifier.input(d);
+          },
           onErase: notifier.erase,
           onUndo: notifier.undo,
           onRedo: notifier.redo,

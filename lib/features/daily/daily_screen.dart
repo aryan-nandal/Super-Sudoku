@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -57,6 +58,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen> {
 
     ref.listen<GameState>(dailyGameControllerProvider, (prev, next) {
       if (next.solved && (prev?.solved != true)) {
+        HapticFeedback.mediumImpact();
         _showResult(notifier);
       }
     });
@@ -122,7 +124,10 @@ class _DailyScreenState extends ConsumerState<DailyScreen> {
           ),
         ),
         NumberPad(
-          onDigit: notifier.input,
+          onDigit: (d) {
+            HapticFeedback.selectionClick();
+            notifier.input(d);
+          },
           onErase: notifier.erase,
           onUndo: notifier.undo,
           onRedo: notifier.redo,
