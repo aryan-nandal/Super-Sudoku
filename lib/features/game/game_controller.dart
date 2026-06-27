@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/daily_completion_repository.dart';
 import '../../data/daily_puzzle_service.dart';
+import '../../data/game_results_repository.dart';
 import '../../data/game_save_repository.dart';
 import '../../data/persistence_providers.dart';
 import '../../data/puzzle_generation_service.dart';
 import '../../domain/daily.dart';
 import '../../domain/puzzle_data.dart';
+import '../../domain/stats.dart';
 import '../../domain/sudoku_game.dart';
 import '../../engine/engine.dart';
 
@@ -71,6 +73,13 @@ class GameState {
   /// Hint disclosure level: 0 = none, 1 = nudge, 2 = technique, 3 = exact cell.
   final int hintTier;
 
+  /// Post-solve: percent faster than the player's average for this difficulty
+  /// (positive = faster), or null if there's no baseline yet.
+  final int? fasterThanAveragePercent;
+
+  /// Post-solve: whether this solve set a new best time for the difficulty.
+  final bool isNewBest;
+
   const GameState({
     this.game,
     this.difficulty = Difficulty.easy,
@@ -84,6 +93,8 @@ class GameState {
     this.dayNumber = 0,
     this.hintStep,
     this.hintTier = 0,
+    this.fasterThanAveragePercent,
+    this.isNewBest = false,
   });
 
   const GameState.initial() : this();
@@ -101,6 +112,8 @@ class GameState {
     int? dayNumber,
     HintStep? hintStep,
     int? hintTier,
+    int? fasterThanAveragePercent,
+    bool? isNewBest,
   }) {
     return GameState(
       game: game ?? this.game,
@@ -115,6 +128,9 @@ class GameState {
       dayNumber: dayNumber ?? this.dayNumber,
       hintStep: hintStep ?? this.hintStep,
       hintTier: hintTier ?? this.hintTier,
+      fasterThanAveragePercent:
+          fasterThanAveragePercent ?? this.fasterThanAveragePercent,
+      isNewBest: isNewBest ?? this.isNewBest,
     );
   }
 }
@@ -125,6 +141,10 @@ class GameController extends Notifier<GameState> {
   late final DailyGenerator _generateDaily;
   late final GameSaveRepository _gameSaves;
   late final DailyCompletionRepository _dailyCompletions;
+  late final GameResultsRepository _results;
+
+  /// In-memory mirror of recorded results so on-solve analytics are synchronous.
+  final List<GameResultRecord> _resultsCache = [];
 
   @override
   GameState build() {
@@ -132,7 +152,19 @@ class GameController extends Notifier<GameState> {
     _generateDaily = ref.read(dailyGeneratorProvider);
     _gameSaves = ref.read(gameSaveRepositoryProvider);
     _dailyCompletions = ref.read(dailyCompletionRepositoryProvider);
+    _results = ref.read(gameResultsRepositoryProvider);
+    _loadResultsCache();
     return const GameState.initial();
+  }
+
+  Future<void> _loadResultsCache() async {
+    try {
+      _resultsCache
+        ..clear()
+        ..addAll(await _results.all());
+    } catch (_) {
+      // persistence unavailable — analytics simply start from empty
+    }
   }
 
   Future<void> newGame(Difficulty target) async {
@@ -286,6 +318,7 @@ class GameController extends Notifier<GameState> {
   // --- Persistence -----------------------------------------------------------
 
   void _persistAfterMove(bool justSolved) {
+    if (justSolved) _recordSolve();
     if (state.isDaily) {
       if (justSolved) _recordDailyCompletion();
     } else if (justSolved) {
@@ -293,6 +326,35 @@ class GameController extends Notifier<GameState> {
     } else {
       _saveFree();
     }
+  }
+
+  /// On solve, compute analytics vs. prior results (from the cache) and record.
+  void _recordSolve() {
+    final game = state.game;
+    if (game == null) return;
+    final time = _elapsedSeconds();
+    final di = state.difficulty.index;
+
+    final priorSamples = _resultsCache
+        .where((r) => r.difficultyIndex == di)
+        .map((r) => (difficultyIndex: r.difficultyIndex, timeSeconds: r.timeSeconds));
+    final prior = summarizeSolves(priorSamples).byDifficulty[di];
+
+    state = state.copyWith(
+      fasterThanAveragePercent:
+          prior != null ? percentFaster(time, prior.averageSeconds) : null,
+      isNewBest: prior == null || time < prior.bestSeconds,
+    );
+
+    final record = GameResultRecord(
+      difficultyIndex: di,
+      timeSeconds: time,
+      mistakes: game.mistakes,
+      isDaily: state.isDaily,
+      date: dailyDateKey(state.dailyDate ?? DateTime.now()),
+    );
+    _resultsCache.add(record);
+    _fireAndForget(_results.record(record));
   }
 
   /// Fire-and-forget a persistence write, swallowing failures so a broken

@@ -11,11 +11,26 @@ class DailyResultCard extends StatelessWidget {
   final DailyResult result;
   final VoidCallback onShare;
 
+  /// Percent faster than the player's average (positive = faster), or null.
+  final int? fasterThanAveragePercent;
+
+  /// Whether this solve set a new best for the difficulty.
+  final bool isNewBest;
+
   const DailyResultCard({
     super.key,
     required this.result,
     required this.onShare,
+    this.fasterThanAveragePercent,
+    this.isNewBest = false,
   });
+
+  String? get _analyticsLine {
+    if (isNewBest) return '🏆 New best time!';
+    final pct = fasterThanAveragePercent;
+    if (pct != null && pct > 0) return '⚡ $pct% faster than your average.';
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +79,14 @@ class DailyResultCard extends StatelessWidget {
               ),
             ],
           ),
+          if (_analyticsLine != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              _analyticsLine!,
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(color: theme.colorScheme.primary),
+            ),
+          ],
           const SizedBox(height: 18),
           _PerformanceGrid(mistakes: result.mistakes),
           const SizedBox(height: 22),

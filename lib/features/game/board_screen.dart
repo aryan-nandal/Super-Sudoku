@@ -7,6 +7,7 @@ import '../../engine/engine.dart';
 import '../daily/daily_screen.dart';
 import '../settings/settings_controller.dart';
 import '../settings/settings_screen.dart';
+import '../stats/stats_screen.dart';
 import 'game_controller.dart';
 import 'widgets/conflict_banner.dart';
 import 'widgets/game_top_bar.dart';
@@ -73,6 +74,13 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
             ),
           ),
           IconButton(
+            tooltip: 'Stats',
+            icon: const Icon(Icons.bar_chart_rounded),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const StatsScreen()),
+            ),
+          ),
+          IconButton(
             tooltip: 'New game',
             icon: const Icon(Icons.add_circle_outline),
             onPressed: _pickDifficulty,
@@ -92,6 +100,16 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
             : _buildGame(state, notifier),
       ),
     );
+  }
+
+  /// Encouraging post-game analytics line, or null if there's no baseline.
+  String? _analyticsLine(GameState state) {
+    if (state.isNewBest) return '🏆 New best time!';
+    final pct = state.fasterThanAveragePercent;
+    if (pct == null) return null;
+    if (pct > 0) return '⚡ $pct% faster than your average.';
+    if (pct < 0) return 'A bit slower than your average — keep at it!';
+    return null;
   }
 
   void _onHint(GameController notifier) {
@@ -187,6 +205,7 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
     final elapsed = _elapsed(state);
     final m = elapsed.inMinutes.toString().padLeft(2, '0');
     final s = (elapsed.inSeconds % 60).toString().padLeft(2, '0');
+    final analytics = _analyticsLine(state);
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -194,7 +213,8 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
         content: Text(
           'Difficulty: ${state.difficulty.label}\n'
           'Time: $m:$s\n'
-          'Mistakes: ${state.game?.mistakes ?? 0}',
+          'Mistakes: ${state.game?.mistakes ?? 0}'
+          '${analytics == null ? '' : '\n$analytics'}',
         ),
         actions: [
           TextButton(

@@ -1302,6 +1302,465 @@ class DailyCompletionsCompanion extends UpdateCompanion<DailyCompletionRow> {
   }
 }
 
+class $GameResultsTable extends GameResults
+    with TableInfo<$GameResultsTable, GameResultRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GameResultsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _difficultyIndexMeta = const VerificationMeta(
+    'difficultyIndex',
+  );
+  @override
+  late final GeneratedColumn<int> difficultyIndex = GeneratedColumn<int>(
+    'difficulty_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timeSecondsMeta = const VerificationMeta(
+    'timeSeconds',
+  );
+  @override
+  late final GeneratedColumn<int> timeSeconds = GeneratedColumn<int>(
+    'time_seconds',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mistakesMeta = const VerificationMeta(
+    'mistakes',
+  );
+  @override
+  late final GeneratedColumn<int> mistakes = GeneratedColumn<int>(
+    'mistakes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hintsMeta = const VerificationMeta('hints');
+  @override
+  late final GeneratedColumn<int> hints = GeneratedColumn<int>(
+    'hints',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _isDailyMeta = const VerificationMeta(
+    'isDaily',
+  );
+  @override
+  late final GeneratedColumn<bool> isDaily = GeneratedColumn<bool>(
+    'is_daily',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_daily" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<String> date = GeneratedColumn<String>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    difficultyIndex,
+    timeSeconds,
+    mistakes,
+    hints,
+    isDaily,
+    date,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'game_results';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GameResultRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('difficulty_index')) {
+      context.handle(
+        _difficultyIndexMeta,
+        difficultyIndex.isAcceptableOrUnknown(
+          data['difficulty_index']!,
+          _difficultyIndexMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_difficultyIndexMeta);
+    }
+    if (data.containsKey('time_seconds')) {
+      context.handle(
+        _timeSecondsMeta,
+        timeSeconds.isAcceptableOrUnknown(
+          data['time_seconds']!,
+          _timeSecondsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_timeSecondsMeta);
+    }
+    if (data.containsKey('mistakes')) {
+      context.handle(
+        _mistakesMeta,
+        mistakes.isAcceptableOrUnknown(data['mistakes']!, _mistakesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mistakesMeta);
+    }
+    if (data.containsKey('hints')) {
+      context.handle(
+        _hintsMeta,
+        hints.isAcceptableOrUnknown(data['hints']!, _hintsMeta),
+      );
+    }
+    if (data.containsKey('is_daily')) {
+      context.handle(
+        _isDailyMeta,
+        isDaily.isAcceptableOrUnknown(data['is_daily']!, _isDailyMeta),
+      );
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GameResultRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GameResultRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      difficultyIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}difficulty_index'],
+      )!,
+      timeSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}time_seconds'],
+      )!,
+      mistakes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}mistakes'],
+      )!,
+      hints: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hints'],
+      )!,
+      isDaily: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_daily'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}date'],
+      )!,
+    );
+  }
+
+  @override
+  $GameResultsTable createAlias(String alias) {
+    return $GameResultsTable(attachedDatabase, alias);
+  }
+}
+
+class GameResultRow extends DataClass implements Insertable<GameResultRow> {
+  final int id;
+  final int difficultyIndex;
+  final int timeSeconds;
+  final int mistakes;
+  final int hints;
+  final bool isDaily;
+  final String date;
+  const GameResultRow({
+    required this.id,
+    required this.difficultyIndex,
+    required this.timeSeconds,
+    required this.mistakes,
+    required this.hints,
+    required this.isDaily,
+    required this.date,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['difficulty_index'] = Variable<int>(difficultyIndex);
+    map['time_seconds'] = Variable<int>(timeSeconds);
+    map['mistakes'] = Variable<int>(mistakes);
+    map['hints'] = Variable<int>(hints);
+    map['is_daily'] = Variable<bool>(isDaily);
+    map['date'] = Variable<String>(date);
+    return map;
+  }
+
+  GameResultsCompanion toCompanion(bool nullToAbsent) {
+    return GameResultsCompanion(
+      id: Value(id),
+      difficultyIndex: Value(difficultyIndex),
+      timeSeconds: Value(timeSeconds),
+      mistakes: Value(mistakes),
+      hints: Value(hints),
+      isDaily: Value(isDaily),
+      date: Value(date),
+    );
+  }
+
+  factory GameResultRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GameResultRow(
+      id: serializer.fromJson<int>(json['id']),
+      difficultyIndex: serializer.fromJson<int>(json['difficultyIndex']),
+      timeSeconds: serializer.fromJson<int>(json['timeSeconds']),
+      mistakes: serializer.fromJson<int>(json['mistakes']),
+      hints: serializer.fromJson<int>(json['hints']),
+      isDaily: serializer.fromJson<bool>(json['isDaily']),
+      date: serializer.fromJson<String>(json['date']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'difficultyIndex': serializer.toJson<int>(difficultyIndex),
+      'timeSeconds': serializer.toJson<int>(timeSeconds),
+      'mistakes': serializer.toJson<int>(mistakes),
+      'hints': serializer.toJson<int>(hints),
+      'isDaily': serializer.toJson<bool>(isDaily),
+      'date': serializer.toJson<String>(date),
+    };
+  }
+
+  GameResultRow copyWith({
+    int? id,
+    int? difficultyIndex,
+    int? timeSeconds,
+    int? mistakes,
+    int? hints,
+    bool? isDaily,
+    String? date,
+  }) => GameResultRow(
+    id: id ?? this.id,
+    difficultyIndex: difficultyIndex ?? this.difficultyIndex,
+    timeSeconds: timeSeconds ?? this.timeSeconds,
+    mistakes: mistakes ?? this.mistakes,
+    hints: hints ?? this.hints,
+    isDaily: isDaily ?? this.isDaily,
+    date: date ?? this.date,
+  );
+  GameResultRow copyWithCompanion(GameResultsCompanion data) {
+    return GameResultRow(
+      id: data.id.present ? data.id.value : this.id,
+      difficultyIndex: data.difficultyIndex.present
+          ? data.difficultyIndex.value
+          : this.difficultyIndex,
+      timeSeconds: data.timeSeconds.present
+          ? data.timeSeconds.value
+          : this.timeSeconds,
+      mistakes: data.mistakes.present ? data.mistakes.value : this.mistakes,
+      hints: data.hints.present ? data.hints.value : this.hints,
+      isDaily: data.isDaily.present ? data.isDaily.value : this.isDaily,
+      date: data.date.present ? data.date.value : this.date,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GameResultRow(')
+          ..write('id: $id, ')
+          ..write('difficultyIndex: $difficultyIndex, ')
+          ..write('timeSeconds: $timeSeconds, ')
+          ..write('mistakes: $mistakes, ')
+          ..write('hints: $hints, ')
+          ..write('isDaily: $isDaily, ')
+          ..write('date: $date')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    difficultyIndex,
+    timeSeconds,
+    mistakes,
+    hints,
+    isDaily,
+    date,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GameResultRow &&
+          other.id == this.id &&
+          other.difficultyIndex == this.difficultyIndex &&
+          other.timeSeconds == this.timeSeconds &&
+          other.mistakes == this.mistakes &&
+          other.hints == this.hints &&
+          other.isDaily == this.isDaily &&
+          other.date == this.date);
+}
+
+class GameResultsCompanion extends UpdateCompanion<GameResultRow> {
+  final Value<int> id;
+  final Value<int> difficultyIndex;
+  final Value<int> timeSeconds;
+  final Value<int> mistakes;
+  final Value<int> hints;
+  final Value<bool> isDaily;
+  final Value<String> date;
+  const GameResultsCompanion({
+    this.id = const Value.absent(),
+    this.difficultyIndex = const Value.absent(),
+    this.timeSeconds = const Value.absent(),
+    this.mistakes = const Value.absent(),
+    this.hints = const Value.absent(),
+    this.isDaily = const Value.absent(),
+    this.date = const Value.absent(),
+  });
+  GameResultsCompanion.insert({
+    this.id = const Value.absent(),
+    required int difficultyIndex,
+    required int timeSeconds,
+    required int mistakes,
+    this.hints = const Value.absent(),
+    this.isDaily = const Value.absent(),
+    required String date,
+  }) : difficultyIndex = Value(difficultyIndex),
+       timeSeconds = Value(timeSeconds),
+       mistakes = Value(mistakes),
+       date = Value(date);
+  static Insertable<GameResultRow> custom({
+    Expression<int>? id,
+    Expression<int>? difficultyIndex,
+    Expression<int>? timeSeconds,
+    Expression<int>? mistakes,
+    Expression<int>? hints,
+    Expression<bool>? isDaily,
+    Expression<String>? date,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (difficultyIndex != null) 'difficulty_index': difficultyIndex,
+      if (timeSeconds != null) 'time_seconds': timeSeconds,
+      if (mistakes != null) 'mistakes': mistakes,
+      if (hints != null) 'hints': hints,
+      if (isDaily != null) 'is_daily': isDaily,
+      if (date != null) 'date': date,
+    });
+  }
+
+  GameResultsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? difficultyIndex,
+    Value<int>? timeSeconds,
+    Value<int>? mistakes,
+    Value<int>? hints,
+    Value<bool>? isDaily,
+    Value<String>? date,
+  }) {
+    return GameResultsCompanion(
+      id: id ?? this.id,
+      difficultyIndex: difficultyIndex ?? this.difficultyIndex,
+      timeSeconds: timeSeconds ?? this.timeSeconds,
+      mistakes: mistakes ?? this.mistakes,
+      hints: hints ?? this.hints,
+      isDaily: isDaily ?? this.isDaily,
+      date: date ?? this.date,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (difficultyIndex.present) {
+      map['difficulty_index'] = Variable<int>(difficultyIndex.value);
+    }
+    if (timeSeconds.present) {
+      map['time_seconds'] = Variable<int>(timeSeconds.value);
+    }
+    if (mistakes.present) {
+      map['mistakes'] = Variable<int>(mistakes.value);
+    }
+    if (hints.present) {
+      map['hints'] = Variable<int>(hints.value);
+    }
+    if (isDaily.present) {
+      map['is_daily'] = Variable<bool>(isDaily.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<String>(date.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GameResultsCompanion(')
+          ..write('id: $id, ')
+          ..write('difficultyIndex: $difficultyIndex, ')
+          ..write('timeSeconds: $timeSeconds, ')
+          ..write('mistakes: $mistakes, ')
+          ..write('hints: $hints, ')
+          ..write('isDaily: $isDaily, ')
+          ..write('date: $date')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1312,6 +1771,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DailyCompletionsTable dailyCompletions = $DailyCompletionsTable(
     this,
   );
+  late final $GameResultsTable gameResults = $GameResultsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1320,6 +1780,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     keyValueEntries,
     gameSaves,
     dailyCompletions,
+    gameResults,
   ];
 }
 
@@ -2021,6 +2482,242 @@ typedef $$DailyCompletionsTableProcessedTableManager =
       DailyCompletionRow,
       PrefetchHooks Function()
     >;
+typedef $$GameResultsTableCreateCompanionBuilder =
+    GameResultsCompanion Function({
+      Value<int> id,
+      required int difficultyIndex,
+      required int timeSeconds,
+      required int mistakes,
+      Value<int> hints,
+      Value<bool> isDaily,
+      required String date,
+    });
+typedef $$GameResultsTableUpdateCompanionBuilder =
+    GameResultsCompanion Function({
+      Value<int> id,
+      Value<int> difficultyIndex,
+      Value<int> timeSeconds,
+      Value<int> mistakes,
+      Value<int> hints,
+      Value<bool> isDaily,
+      Value<String> date,
+    });
+
+class $$GameResultsTableFilterComposer
+    extends Composer<_$AppDatabase, $GameResultsTable> {
+  $$GameResultsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get difficultyIndex => $composableBuilder(
+    column: $table.difficultyIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get timeSeconds => $composableBuilder(
+    column: $table.timeSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get mistakes => $composableBuilder(
+    column: $table.mistakes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hints => $composableBuilder(
+    column: $table.hints,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDaily => $composableBuilder(
+    column: $table.isDaily,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GameResultsTableOrderingComposer
+    extends Composer<_$AppDatabase, $GameResultsTable> {
+  $$GameResultsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get difficultyIndex => $composableBuilder(
+    column: $table.difficultyIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get timeSeconds => $composableBuilder(
+    column: $table.timeSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get mistakes => $composableBuilder(
+    column: $table.mistakes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get hints => $composableBuilder(
+    column: $table.hints,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDaily => $composableBuilder(
+    column: $table.isDaily,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GameResultsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GameResultsTable> {
+  $$GameResultsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get difficultyIndex => $composableBuilder(
+    column: $table.difficultyIndex,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get timeSeconds => $composableBuilder(
+    column: $table.timeSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get mistakes =>
+      $composableBuilder(column: $table.mistakes, builder: (column) => column);
+
+  GeneratedColumn<int> get hints =>
+      $composableBuilder(column: $table.hints, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDaily =>
+      $composableBuilder(column: $table.isDaily, builder: (column) => column);
+
+  GeneratedColumn<String> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+}
+
+class $$GameResultsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GameResultsTable,
+          GameResultRow,
+          $$GameResultsTableFilterComposer,
+          $$GameResultsTableOrderingComposer,
+          $$GameResultsTableAnnotationComposer,
+          $$GameResultsTableCreateCompanionBuilder,
+          $$GameResultsTableUpdateCompanionBuilder,
+          (
+            GameResultRow,
+            BaseReferences<_$AppDatabase, $GameResultsTable, GameResultRow>,
+          ),
+          GameResultRow,
+          PrefetchHooks Function()
+        > {
+  $$GameResultsTableTableManager(_$AppDatabase db, $GameResultsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GameResultsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GameResultsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GameResultsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> difficultyIndex = const Value.absent(),
+                Value<int> timeSeconds = const Value.absent(),
+                Value<int> mistakes = const Value.absent(),
+                Value<int> hints = const Value.absent(),
+                Value<bool> isDaily = const Value.absent(),
+                Value<String> date = const Value.absent(),
+              }) => GameResultsCompanion(
+                id: id,
+                difficultyIndex: difficultyIndex,
+                timeSeconds: timeSeconds,
+                mistakes: mistakes,
+                hints: hints,
+                isDaily: isDaily,
+                date: date,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int difficultyIndex,
+                required int timeSeconds,
+                required int mistakes,
+                Value<int> hints = const Value.absent(),
+                Value<bool> isDaily = const Value.absent(),
+                required String date,
+              }) => GameResultsCompanion.insert(
+                id: id,
+                difficultyIndex: difficultyIndex,
+                timeSeconds: timeSeconds,
+                mistakes: mistakes,
+                hints: hints,
+                isDaily: isDaily,
+                date: date,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GameResultsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GameResultsTable,
+      GameResultRow,
+      $$GameResultsTableFilterComposer,
+      $$GameResultsTableOrderingComposer,
+      $$GameResultsTableAnnotationComposer,
+      $$GameResultsTableCreateCompanionBuilder,
+      $$GameResultsTableUpdateCompanionBuilder,
+      (
+        GameResultRow,
+        BaseReferences<_$AppDatabase, $GameResultsTable, GameResultRow>,
+      ),
+      GameResultRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2031,4 +2728,6 @@ class $AppDatabaseManager {
       $$GameSavesTableTableManager(_db, _db.gameSaves);
   $$DailyCompletionsTableTableManager get dailyCompletions =>
       $$DailyCompletionsTableTableManager(_db, _db.dailyCompletions);
+  $$GameResultsTableTableManager get gameResults =>
+      $$GameResultsTableTableManager(_db, _db.gameResults);
 }

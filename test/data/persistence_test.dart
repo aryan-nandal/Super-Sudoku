@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:super_sudoku/data/daily_completion_repository.dart';
 import 'package:super_sudoku/data/db/app_database.dart';
+import 'package:super_sudoku/data/game_results_repository.dart';
 import 'package:super_sudoku/data/game_save_repository.dart';
 import 'package:super_sudoku/data/settings_repository.dart';
 import 'package:super_sudoku/engine/engine.dart';
@@ -114,6 +115,35 @@ void main() {
       ));
       expect((await repo.all()).length, 1);
       expect((await repo.forDate(date))!.timeSeconds, 200);
+    });
+  });
+
+  group('GameResultsRepository', () {
+    test('records results and queries by difficulty', () async {
+      final repo = GameResultsRepository(db);
+      await repo.record(const GameResultRecord(
+        difficultyIndex: 1,
+        timeSeconds: 200,
+        mistakes: 0,
+        date: '2026-06-28',
+      ));
+      await repo.record(const GameResultRecord(
+        difficultyIndex: 1,
+        timeSeconds: 300,
+        mistakes: 1,
+        date: '2026-06-28',
+      ));
+      await repo.record(const GameResultRecord(
+        difficultyIndex: 2,
+        timeSeconds: 600,
+        mistakes: 0,
+        isDaily: true,
+        date: '2026-06-28',
+      ));
+
+      expect((await repo.all()).length, 3);
+      expect((await repo.forDifficulty(1)).length, 2);
+      expect((await repo.forDifficulty(2)).single.isDaily, isTrue);
     });
   });
 }
