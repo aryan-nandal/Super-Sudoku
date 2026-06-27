@@ -7,6 +7,8 @@ import 'package:super_sudoku/engine/engine.dart';
 import 'package:super_sudoku/features/daily/daily_screen.dart';
 import 'package:super_sudoku/features/game/game_controller.dart';
 
+import '../../helpers/test_db.dart';
+
 void main() {
   const solutionStr =
       '534678912672195348198342567859761423426853791713924856961537284287419635345286179';
@@ -28,6 +30,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          inMemoryDbOverride,
           dailyGeneratorProvider.overrideWithValue((_) async => data),
         ],
         child: MaterialApp(theme: AppTheme.light(), home: const DailyScreen()),

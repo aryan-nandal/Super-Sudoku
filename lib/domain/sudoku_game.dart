@@ -45,6 +45,26 @@ class SudokuGame {
   factory SudokuGame.from(PuzzleData data) =>
       SudokuGame(solution: data.solution, puzzle: data.puzzle);
 
+  /// Rebuild a game from a persisted snapshot: givens come from [puzzle], then
+  /// the player's [values], [notes] and [mistakes] are restored on top.
+  factory SudokuGame.restore({
+    required List<int> solution,
+    required List<int> puzzle,
+    required List<int> values,
+    required List<Set<int>> notes,
+    required int mistakes,
+  }) {
+    final game = SudokuGame(solution: solution, puzzle: puzzle);
+    for (var i = 0; i < boardSize; i++) {
+      game.values[i] = values[i];
+      game.notes[i]
+        ..clear()
+        ..addAll(notes[i]);
+    }
+    game.mistakes = mistakes;
+    return game;
+  }
+
   // --- Queries used by the UI -------------------------------------------------
 
   bool get canUndo => _undoStack.isNotEmpty;

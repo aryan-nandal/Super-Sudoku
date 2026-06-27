@@ -5,6 +5,8 @@ import 'package:super_sudoku/domain/puzzle_data.dart';
 import 'package:super_sudoku/engine/engine.dart';
 import 'package:super_sudoku/features/game/game_controller.dart';
 
+import '../../helpers/test_db.dart';
+
 void main() {
   const solutionStr =
       '534678912672195348198342567859761423426853791713924856961537284287419635345286179';
@@ -24,6 +26,7 @@ void main() {
   ProviderContainer containerWith(PuzzleData data) {
     final container = ProviderContainer(
       overrides: [
+        inMemoryDbOverride,
         dailyGeneratorProvider.overrideWithValue((_) async => data),
       ],
     );
