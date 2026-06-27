@@ -31,13 +31,18 @@ class GameSnapshot {
 }
 
 /// Persists and restores in-progress games (one row per slot id).
+///
+/// [db] may be null when persistence is unavailable; then saves/deletes no-op
+/// and load returns null.
 class GameSaveRepository {
-  final AppDatabase db;
+  final AppDatabase? db;
 
   GameSaveRepository(this.db);
 
-  Future<void> save(GameSnapshot s) {
-    return db.into(db.gameSaves).insertOnConflictUpdate(
+  Future<void> save(GameSnapshot s) async {
+    final database = db;
+    if (database == null) return;
+    await database.into(database.gameSaves).insertOnConflictUpdate(
           GameSavesCompanion.insert(
             id: s.id,
             puzzle: boardToString(s.puzzle),
@@ -55,7 +60,10 @@ class GameSaveRepository {
   }
 
   Future<GameSnapshot?> load(String id) async {
-    final row = await (db.select(db.gameSaves)..where((t) => t.id.equals(id)))
+    final database = db;
+    if (database == null) return null;
+    final row = await (database.select(database.gameSaves)
+          ..where((t) => t.id.equals(id)))
         .getSingleOrNull();
     if (row == null) return null;
     return GameSnapshot(
@@ -72,8 +80,12 @@ class GameSaveRepository {
     );
   }
 
-  Future<void> delete(String id) =>
-      (db.delete(db.gameSaves)..where((t) => t.id.equals(id))).go();
+  Future<void> delete(String id) async {
+    final database = db;
+    if (database == null) return;
+    await (database.delete(database.gameSaves)..where((t) => t.id.equals(id)))
+        .go();
+  }
 
   /// Notes are encoded as 81 comma-separated fields; each field is the sorted
   /// digits of that cell (empty field == no notes). e.g. "135,,7,...".
