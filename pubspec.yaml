@@ -38,6 +38,9 @@ dependencies:
   share_plus: ^13.2.0
   drift: ^2.34.0
   drift_flutter: ^0.3.0
+  go_router: ^17.3.0
+  flutter_web_plugins:
+    sdk: flutter
   # NOTE: riverpod_generator (codegen) is intentionally omitted for now — its
   # stable release lags behind flutter_riverpod 3.3 / riverpod_annotation 4.x
   # and cannot co-resolve. Providers are written manually until then; switching
