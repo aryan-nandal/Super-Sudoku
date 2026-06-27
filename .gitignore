@@ -49,3 +49,6 @@ app.*.map.json
 
 # Private planning docs — never commit (keep local only)
 docs/
+
+# Claude Code local tooling (settings, worktrees) — never commit
+.claude/
