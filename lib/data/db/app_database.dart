@@ -47,7 +47,21 @@ class DailyCompletions extends Table {
   Set<Column> get primaryKey => {date};
 }
 
-@DriftDatabase(tables: [KeyValueEntries, GameSaves, DailyCompletions])
+/// Every solved game (free play and daily) — powers stats & analytics.
+@DataClassName('GameResultRow')
+class GameResults extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get difficultyIndex => integer()();
+  IntColumn get timeSeconds => integer()();
+  IntColumn get mistakes => integer()();
+  IntColumn get hints => integer().withDefault(const Constant(0))();
+  BoolColumn get isDaily => boolean().withDefault(const Constant(false))();
+  TextColumn get date => text()(); // yyyy-mm-dd
+}
+
+@DriftDatabase(
+  tables: [KeyValueEntries, GameSaves, DailyCompletions, GameResults],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
@@ -55,5 +69,13 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.open() : super(driftDatabase(name: 'super_sudoku'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) await m.createTable(gameResults);
+        },
+      );
 }

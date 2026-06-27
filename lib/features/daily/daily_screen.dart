@@ -139,6 +139,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen> {
   void _showResult(GameController notifier) {
     final result = notifier.dailyResult;
     if (result == null) return;
+    final state = ref.read(dailyGameControllerProvider);
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -146,6 +147,8 @@ class _DailyScreenState extends ConsumerState<DailyScreen> {
       builder: (context) => DailyResultCard(
         result: result,
         onShare: () => _share(result),
+        fasterThanAveragePercent: state.fasterThanAveragePercent,
+        isNewBest: state.isNewBest,
       ),
     );
   }

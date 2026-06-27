@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'daily_completion_repository.dart';
 import 'db/app_database.dart';
+import 'game_results_repository.dart';
 import 'game_save_repository.dart';
 import 'settings_repository.dart';
 
@@ -23,4 +24,8 @@ final gameSaveRepositoryProvider = Provider<GameSaveRepository>(
 
 final dailyCompletionRepositoryProvider = Provider<DailyCompletionRepository>(
   (ref) => DailyCompletionRepository(ref.watch(appDatabaseProvider)),
+);
+
+final gameResultsRepositoryProvider = Provider<GameResultsRepository>(
+  (ref) => GameResultsRepository(ref.watch(appDatabaseProvider)),
 );
