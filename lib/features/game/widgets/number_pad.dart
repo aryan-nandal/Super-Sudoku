@@ -10,6 +10,7 @@ class NumberPad extends StatelessWidget {
   final VoidCallback onUndo;
   final VoidCallback onRedo;
   final VoidCallback onToggleNotes;
+  final VoidCallback onHint;
   final bool notesMode;
   final bool canUndo;
   final bool canRedo;
@@ -24,6 +25,7 @@ class NumberPad extends StatelessWidget {
     required this.onUndo,
     required this.onRedo,
     required this.onToggleNotes,
+    required this.onHint,
     required this.notesMode,
     required this.canUndo,
     required this.canRedo,
@@ -53,6 +55,12 @@ class NumberPad extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              _ActionButton(
+                actionKey: 'action_hint',
+                icon: Icons.lightbulb_outline,
+                label: 'Hint',
+                onPressed: onHint,
+              ),
               _ActionButton(
                 actionKey: 'action_undo',
                 icon: Icons.undo_rounded,

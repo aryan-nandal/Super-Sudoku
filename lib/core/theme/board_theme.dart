@@ -16,6 +16,8 @@ class BoardTheme extends ThemeExtension<BoardTheme> {
   final Color selectedCellBackground;
   final Color peerCellBackground;
   final Color sameValueBackground;
+  final Color hintCellBackground;
+  final Color hintRegionBackground;
   final Color noteText;
   final Color thinLine;
   final Color thickLine;
@@ -29,6 +31,8 @@ class BoardTheme extends ThemeExtension<BoardTheme> {
     required this.selectedCellBackground,
     required this.peerCellBackground,
     required this.sameValueBackground,
+    required this.hintCellBackground,
+    required this.hintRegionBackground,
     required this.noteText,
     required this.thinLine,
     required this.thickLine,
@@ -45,6 +49,8 @@ class BoardTheme extends ThemeExtension<BoardTheme> {
       selectedCellBackground: scheme.primary.withValues(alpha: 0.28),
       peerCellBackground: scheme.primary.withValues(alpha: 0.07),
       sameValueBackground: scheme.primary.withValues(alpha: 0.16),
+      hintCellBackground: scheme.tertiary.withValues(alpha: 0.42),
+      hintRegionBackground: scheme.tertiary.withValues(alpha: 0.12),
       noteText: scheme.onSurfaceVariant,
       thinLine: scheme.outlineVariant,
       thickLine: scheme.outline,
@@ -61,6 +67,8 @@ class BoardTheme extends ThemeExtension<BoardTheme> {
     Color? selectedCellBackground,
     Color? peerCellBackground,
     Color? sameValueBackground,
+    Color? hintCellBackground,
+    Color? hintRegionBackground,
     Color? noteText,
     Color? thinLine,
     Color? thickLine,
@@ -75,6 +83,8 @@ class BoardTheme extends ThemeExtension<BoardTheme> {
           selectedCellBackground ?? this.selectedCellBackground,
       peerCellBackground: peerCellBackground ?? this.peerCellBackground,
       sameValueBackground: sameValueBackground ?? this.sameValueBackground,
+      hintCellBackground: hintCellBackground ?? this.hintCellBackground,
+      hintRegionBackground: hintRegionBackground ?? this.hintRegionBackground,
       noteText: noteText ?? this.noteText,
       thinLine: thinLine ?? this.thinLine,
       thickLine: thickLine ?? this.thickLine,
@@ -97,6 +107,10 @@ class BoardTheme extends ThemeExtension<BoardTheme> {
           Color.lerp(peerCellBackground, other.peerCellBackground, t)!,
       sameValueBackground:
           Color.lerp(sameValueBackground, other.sameValueBackground, t)!,
+      hintCellBackground:
+          Color.lerp(hintCellBackground, other.hintCellBackground, t)!,
+      hintRegionBackground:
+          Color.lerp(hintRegionBackground, other.hintRegionBackground, t)!,
       noteText: Color.lerp(noteText, other.noteText, t)!,
       thinLine: Color.lerp(thinLine, other.thinLine, t)!,
       thickLine: Color.lerp(thickLine, other.thickLine, t)!,

@@ -10,6 +10,7 @@ import '../settings/settings_screen.dart';
 import 'game_controller.dart';
 import 'widgets/conflict_banner.dart';
 import 'widgets/game_top_bar.dart';
+import 'widgets/hint_banner.dart';
 import 'widgets/number_pad.dart';
 import 'widgets/sudoku_board.dart';
 
@@ -93,6 +94,15 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
     );
   }
 
+  void _onHint(GameController notifier) {
+    notifier.requestHint();
+    if (ref.read(gameControllerProvider).hintTier == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No hint available right now.')),
+      );
+    }
+  }
+
   Widget _buildGame(GameState state, GameController notifier) {
     final game = state.game!;
     final settings = ref.watch(settingsControllerProvider);
@@ -104,6 +114,14 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
           mistakes: game.mistakes,
         ),
         if (game.hasErrors) ConflictBanner(onRewind: notifier.clearErrors),
+        if (state.hintTier > 0 && state.hintStep != null)
+          HintBanner(
+            hint: state.hintStep!,
+            tier: state.hintTier,
+            onMore: notifier.requestHint,
+            onApply: notifier.applyHint,
+            onDismiss: notifier.dismissHint,
+          ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(12),
@@ -116,6 +134,8 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
                   highlightPeers: settings.highlightPeers,
                   highlightDuplicates: settings.highlightDuplicates,
                   autoCandidateNotes: settings.autoCandidateNotes,
+                  hintCell: state.hintStep?.cell,
+                  hintTier: state.hintTier,
                 ),
               ),
             ),
@@ -127,6 +147,7 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
           onUndo: notifier.undo,
           onRedo: notifier.redo,
           onToggleNotes: notifier.toggleNotesMode,
+          onHint: () => _onHint(notifier),
           notesMode: game.notesMode,
           canUndo: game.canUndo,
           canRedo: game.canRedo,
