@@ -33,6 +33,24 @@ extension TechniqueInfo on Technique {
         Technique.nakedTriple: 'Naked Triple',
         Technique.xWing: 'X-Wing',
       }[this]!;
+
+  /// One-line teaching tip (used by tier-2 hints).
+  String get tip => const {
+        Technique.nakedSingle:
+            'This cell has only one possible digit left.',
+        Technique.hiddenSingle:
+            'Only one cell in a row, column, or box can hold this digit.',
+        Technique.lockedCandidates:
+            'A digit in a box is confined to one line, so it can be removed from that line elsewhere.',
+        Technique.nakedPair:
+            'Two cells share the same two candidates, freeing those digits from the rest of the unit.',
+        Technique.hiddenPair:
+            'Two digits can only go in the same two cells of a unit.',
+        Technique.nakedTriple:
+            'Three cells together use only three candidates.',
+        Technique.xWing:
+            'A digit forms a rectangle across two lines, eliminating it from the crossing lines.',
+      }[this]!;
 }
 
 /// The outcome of grading a puzzle by pure logical deduction.
@@ -143,6 +161,130 @@ GradeResult grade(List<int> puzzle) {
     hardestTechnique: hardest,
     score: score,
   );
+}
+
+/// A single suggested next step for the hint system.
+class HintStep {
+  /// The technique that justifies the step (the hardest one needed to reach it).
+  final Technique technique;
+
+  /// The cell to fill.
+  final int cell;
+
+  /// The digit that belongs in [cell].
+  final int digit;
+
+  const HintStep({
+    required this.technique,
+    required this.cell,
+    required this.digit,
+  });
+}
+
+/// Finds the next logical placement from the current [boardValues], applying
+/// eliminations as needed to unlock it. Returns null if the board is solved,
+/// contradictory, or stuck beyond the supported technique ladder.
+///
+/// Read-only with respect to the caller's board — it works on internal copies.
+HintStep? nextHint(List<int> boardValues) {
+  final values = List<int>.of(boardValues);
+  final candidates = List<Set<int>>.generate(boardSize, (i) {
+    if (values[i] != 0) return <int>{};
+    final used = <int>{};
+    for (final p in peers[i]) {
+      if (values[p] != 0) used.add(values[p]);
+    }
+    return {for (var d = 1; d <= 9; d++) if (!used.contains(d)) d};
+  });
+
+  Technique? hardest;
+  while (true) {
+    for (var i = 0; i < boardSize; i++) {
+      if (values[i] == 0 && candidates[i].isEmpty) return null; // contradiction
+    }
+
+    final ns = _findNakedSingle(values, candidates);
+    if (ns != null) return _hintResult(Technique.nakedSingle, ns, hardest);
+
+    final hs = _findHiddenSingle(values, candidates);
+    if (hs != null) return _hintResult(Technique.hiddenSingle, hs, hardest);
+
+    // No singles available — apply the cheapest elimination to make progress.
+    var progressed = false;
+    for (final t in const [
+      Technique.lockedCandidates,
+      Technique.nakedPair,
+      Technique.hiddenPair,
+      Technique.nakedTriple,
+      Technique.xWing,
+    ]) {
+      if (_applyElimination(t, values, candidates)) {
+        if (hardest == null || t.index > hardest.index) hardest = t;
+        progressed = true;
+        break;
+      }
+    }
+    if (!progressed) return null; // stuck beyond our techniques
+  }
+}
+
+HintStep _hintResult(Technique single, List<int> cellDigit, Technique? hardest) {
+  // If an advanced elimination was needed, that's the teaching point.
+  final tech =
+      (hardest != null && hardest.index > single.index) ? hardest : single;
+  return HintStep(technique: tech, cell: cellDigit[0], digit: cellDigit[1]);
+}
+
+/// Returns [cell, digit] of a naked single, or null.
+List<int>? _findNakedSingle(List<int> values, List<Set<int>> cand) {
+  for (var i = 0; i < boardSize; i++) {
+    if (values[i] == 0 && cand[i].length == 1) return [i, cand[i].first];
+  }
+  return null;
+}
+
+/// Returns [cell, digit] of a hidden single, or null.
+List<int>? _findHiddenSingle(List<int> values, List<Set<int>> cand) {
+  for (final unit in allUnits) {
+    for (var d = 1; d <= 9; d++) {
+      var onlyCell = -1;
+      var count = 0;
+      var alreadyPlaced = false;
+      for (final i in unit) {
+        if (values[i] == d) {
+          alreadyPlaced = true;
+          break;
+        }
+        if (values[i] == 0 && cand[i].contains(d)) {
+          count++;
+          onlyCell = i;
+        }
+      }
+      if (!alreadyPlaced && count == 1) return [onlyCell, d];
+    }
+  }
+  return null;
+}
+
+bool _applyElimination(
+  Technique t,
+  List<int> values,
+  List<Set<int>> candidates,
+) {
+  switch (t) {
+    case Technique.lockedCandidates:
+      return _lockedCandidates(values, candidates);
+    case Technique.nakedPair:
+      return _nakedSubset(values, candidates, 2);
+    case Technique.hiddenPair:
+      return _hiddenPair(values, candidates);
+    case Technique.nakedTriple:
+      return _nakedSubset(values, candidates, 3);
+    case Technique.nakedSingle:
+    case Technique.hiddenSingle:
+    case Technique.xWing:
+      return t == Technique.xWing ? _xWing(values, candidates) : false;
+  }
 }
 
 // ---------------------------------------------------------------------------

@@ -24,6 +24,12 @@ class SudokuBoard extends StatelessWidget {
   /// Show computed candidates in empty cells that have no user notes.
   final bool autoCandidateNotes;
 
+  /// The hint target cell to highlight, or null.
+  final int? hintCell;
+
+  /// Hint disclosure tier: region highlight for 1–2, exact cell for 3.
+  final int hintTier;
+
   const SudokuBoard({
     super.key,
     required this.game,
@@ -31,6 +37,8 @@ class SudokuBoard extends StatelessWidget {
     this.highlightPeers = true,
     this.highlightDuplicates = true,
     this.autoCandidateNotes = false,
+    this.hintCell,
+    this.hintTier = 0,
   });
 
   @override
@@ -59,6 +67,8 @@ class SudokuBoard extends StatelessWidget {
                     highlightPeers: highlightPeers,
                     highlightDuplicates: highlightDuplicates,
                     autoCandidateNotes: autoCandidateNotes,
+                    hintCell: hintCell,
+                    hintTier: hintTier,
                     onTap: () => onCellTap(i),
                   ),
                 ),
@@ -88,6 +98,8 @@ class _Cell extends StatelessWidget {
   final bool highlightPeers;
   final bool highlightDuplicates;
   final bool autoCandidateNotes;
+  final int? hintCell;
+  final int hintTier;
   final VoidCallback onTap;
 
   const _Cell({
@@ -98,6 +110,8 @@ class _Cell extends StatelessWidget {
     required this.highlightPeers,
     required this.highlightDuplicates,
     required this.autoCandidateNotes,
+    required this.hintCell,
+    required this.hintTier,
     required this.onTap,
   });
 
@@ -128,6 +142,13 @@ class _Cell extends StatelessWidget {
 
   Color _backgroundColor(bool isSelected, int? selected, int value) {
     if (isSelected) return board.selectedCellBackground;
+    // Hint highlighting takes priority so the player can find the suggestion.
+    if (hintTier > 0 && hintCell != null) {
+      if (hintTier >= 3 && index == hintCell) return board.hintCellBackground;
+      if (hintTier < 3 && boxOf(index) == boxOf(hintCell!)) {
+        return board.hintRegionBackground;
+      }
+    }
     if (highlightDuplicates && game.isDuplicate(index)) {
       return board.errorCellBackground;
     }

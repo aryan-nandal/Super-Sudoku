@@ -65,6 +65,12 @@ class GameState {
   /// 1-based daily number; 0 for free play.
   final int dayNumber;
 
+  /// The active hint step, if any (ignored when [hintTier] is 0).
+  final HintStep? hintStep;
+
+  /// Hint disclosure level: 0 = none, 1 = nudge, 2 = technique, 3 = exact cell.
+  final int hintTier;
+
   const GameState({
     this.game,
     this.difficulty = Difficulty.easy,
@@ -76,6 +82,8 @@ class GameState {
     this.isDaily = false,
     this.dailyDate,
     this.dayNumber = 0,
+    this.hintStep,
+    this.hintTier = 0,
   });
 
   const GameState.initial() : this();
@@ -91,6 +99,8 @@ class GameState {
     bool? isDaily,
     DateTime? dailyDate,
     int? dayNumber,
+    HintStep? hintStep,
+    int? hintTier,
   }) {
     return GameState(
       game: game ?? this.game,
@@ -103,6 +113,8 @@ class GameState {
       isDaily: isDaily ?? this.isDaily,
       dailyDate: dailyDate ?? this.dailyDate,
       dayNumber: dayNumber ?? this.dayNumber,
+      hintStep: hintStep ?? this.hintStep,
+      hintTier: hintTier ?? this.hintTier,
     );
   }
 }
@@ -218,6 +230,43 @@ class GameController extends Notifier<GameState> {
   /// Rewind out of an unsolvable state by clearing wrong entries.
   void clearErrors() => _mutate((g) => g.clearErrors());
 
+  // --- Hints -----------------------------------------------------------------
+
+  /// Request a hint, or escalate the current one to the next disclosure tier.
+  /// If no hint exists yet, computes one from the board's *correct* entries.
+  /// Leaves [GameState.hintTier] at 0 if no logical step is available.
+  void requestHint() {
+    final game = state.game;
+    if (game == null) return;
+    if (state.hintTier > 0) {
+      state = state.copyWith(hintTier: (state.hintTier + 1).clamp(1, 3));
+      return;
+    }
+    final step = nextHint(_correctOnlyBoard(game));
+    if (step == null) return;
+    state = state.copyWith(hintStep: step, hintTier: 1);
+  }
+
+  void dismissHint() => state = state.copyWith(hintTier: 0);
+
+  /// Place the current hint's digit (tier-3 "fill it for me").
+  void applyHint() {
+    final h = state.hintStep;
+    if (h == null || state.hintTier == 0) return;
+    select(h.cell);
+    input(h.digit);
+  }
+
+  /// Board containing only givens and correct player entries — the basis for a
+  /// meaningful logical hint (player errors are ignored).
+  List<int> _correctOnlyBoard(SudokuGame game) => List<int>.generate(
+        boardSize,
+        (i) =>
+            (game.values[i] != 0 && game.values[i] == game.solution[i])
+                ? game.values[i]
+                : 0,
+      );
+
   /// Applies [action] to the current game, then emits a refreshed state,
   /// flipping to solved (and stopping the clock) when the board is complete.
   void _mutate(void Function(SudokuGame game) action) {
@@ -229,6 +278,7 @@ class GameController extends Notifier<GameState> {
       solved: justSolved,
       running: state.running && !justSolved,
       finishedAt: justSolved ? DateTime.now() : null,
+      hintTier: 0, // any board change dismisses the active hint
     );
     _persistAfterMove(justSolved);
   }
