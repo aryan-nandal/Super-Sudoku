@@ -115,6 +115,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen> {
                   autoCandidateNotes: settings.autoCandidateNotes,
                   hintCell: state.hintStep?.cell,
                   hintTier: state.hintTier,
+                  colorBlindMode: settings.colorBlindMode,
                 ),
               ),
             ),
