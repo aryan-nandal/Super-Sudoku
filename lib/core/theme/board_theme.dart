@@ -46,14 +46,14 @@ class BoardTheme extends ThemeExtension<BoardTheme> {
       userText: scheme.primary,
       errorText: scheme.error,
       errorCellBackground: scheme.error.withValues(alpha: 0.14),
-      selectedCellBackground: scheme.primary.withValues(alpha: 0.28),
-      peerCellBackground: scheme.primary.withValues(alpha: 0.07),
-      sameValueBackground: scheme.primary.withValues(alpha: 0.16),
-      hintCellBackground: scheme.tertiary.withValues(alpha: 0.42),
-      hintRegionBackground: scheme.tertiary.withValues(alpha: 0.12),
+      selectedCellBackground: scheme.primary.withValues(alpha: 0.42),
+      peerCellBackground: scheme.primary.withValues(alpha: 0.09),
+      sameValueBackground: scheme.primary.withValues(alpha: 0.20),
+      hintCellBackground: scheme.tertiary.withValues(alpha: 0.45),
+      hintRegionBackground: scheme.tertiary.withValues(alpha: 0.14),
       noteText: scheme.onSurfaceVariant,
-      thinLine: scheme.outlineVariant,
-      thickLine: scheme.outline,
+      thinLine: scheme.onSurface.withValues(alpha: 0.12),
+      thickLine: scheme.onSurface.withValues(alpha: 0.55),
     );
   }
 

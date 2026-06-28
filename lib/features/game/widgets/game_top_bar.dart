@@ -36,9 +36,14 @@ class GameTopBar extends StatelessWidget {
           ),
           Row(
             children: [
-              Icon(Icons.timer_outlined, size: 18, color: scheme.onSurfaceVariant),
+              Icon(Icons.timer_outlined, size: 18, color: scheme.primary),
               const SizedBox(width: 4),
-              Text(_time, style: labelStyle),
+              Text(
+                _time,
+                style: labelStyle?.copyWith(
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
             ],
           ),
           Row(

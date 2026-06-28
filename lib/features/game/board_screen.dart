@@ -10,6 +10,7 @@ import '../../shared/widgets/app_background.dart';
 import '../../shared/widgets/glass_surface.dart';
 import '../settings/settings_controller.dart';
 import 'game_controller.dart';
+import 'widgets/board_hero.dart';
 import 'widgets/conflict_banner.dart';
 import 'widgets/game_top_bar.dart';
 import 'widgets/hint_banner.dart';
@@ -143,20 +144,22 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
             onDismiss: notifier.dismissHint,
           ),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Center(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
               child: AspectRatio(
                 aspectRatio: 1,
-                child: SudokuBoard(
-                  game: game,
-                  onCellTap: notifier.select,
-                  highlightPeers: settings.highlightPeers,
-                  highlightDuplicates: settings.highlightDuplicates,
-                  autoCandidateNotes: settings.autoCandidateNotes,
-                  hintCell: state.hintStep?.cell,
-                  hintTier: state.hintTier,
-                  colorBlindMode: settings.colorBlindMode,
+                child: BoardHero(
+                  child: SudokuBoard(
+                    game: game,
+                    onCellTap: notifier.select,
+                    highlightPeers: settings.highlightPeers,
+                    highlightDuplicates: settings.highlightDuplicates,
+                    autoCandidateNotes: settings.autoCandidateNotes,
+                    hintCell: state.hintStep?.cell,
+                    hintTier: state.hintTier,
+                    colorBlindMode: settings.colorBlindMode,
+                  ),
                 ),
               ),
             ),

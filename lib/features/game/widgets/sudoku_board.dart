@@ -143,10 +143,13 @@ class _Cell extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: color,
-            // A non-color cue for conflicts when color-blind mode is on.
-            border: (conflict && colorBlindMode)
-                ? Border.all(color: board.errorText, width: 2)
-                : null,
+            // Neon ring on the selected cell; a non-color border for conflicts
+            // in color-blind mode.
+            border: isSelected
+                ? Border.all(color: board.userText, width: 2)
+                : (conflict && colorBlindMode)
+                    ? Border.all(color: board.errorText, width: 2)
+                    : null,
           ),
           alignment: Alignment.center,
           child: _content(context, value, isError),
@@ -275,7 +278,7 @@ class _GridPainter extends CustomPainter {
       final isBox = i % boxSide == 0;
       final paint = Paint()
         ..color = isBox ? thick : thin
-        ..strokeWidth = isBox ? 2.0 : 0.8;
+        ..strokeWidth = isBox ? 2.6 : 0.8;
       final d = i * cell;
       canvas.drawLine(Offset(d, 0), Offset(d, size.height), paint);
       canvas.drawLine(Offset(0, d), Offset(size.width, d), paint);
