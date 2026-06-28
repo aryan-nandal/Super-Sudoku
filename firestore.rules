@@ -2,17 +2,35 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // A signed-in user (including anonymous) may read/write only their own doc.
+    // A user owns their profile doc (display name, etc.).
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Raw solve events: a user may only CREATE their own, with sane,
+      // immutable fields. The server reads these to compute the rating.
+      match /solves/{solveId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null
+          && request.auth.uid == userId
+          && request.resource.data.difficultyIndex is int
+          && request.resource.data.difficultyIndex >= 0
+          && request.resource.data.difficultyIndex <= 5
+          && request.resource.data.timeSeconds is int
+          && request.resource.data.timeSeconds >= 1
+          && request.resource.data.timeSeconds <= 86400
+          && request.resource.data.mistakes is int
+          && request.resource.data.mistakes >= 0
+          && request.resource.data.mistakes <= 9999;
+        allow update, delete: if false; // solves are immutable
+      }
     }
 
-    // Public leaderboard: anyone may read; a user may write only their own entry.
-    // NOTE: rating is client-reported for now — add a Cloud Function to validate
-    // it server-side (anti-cheat) before this is truly competitive.
+    // Public leaderboard: anyone may read; NOBODY may write from a client.
+    // Entries are written only by the Cloud Function (Admin SDK), which
+    // recomputes the rating server-side from validated solves (anti-cheat).
     match /leaderboard/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow write: if false;
     }
     // Everything else is denied by default.
   }

@@ -21,13 +21,6 @@ class FirebaseLeaderboardRepository implements LeaderboardRepository {
   bool get isRemote => true;
 
   @override
-  Future<void> publish(LeaderboardEntry entry) => _col.doc(entry.userId).set({
-        'displayName': entry.displayName,
-        'rating': entry.rating,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-  @override
   Stream<List<LeaderboardEntry>> watchTop({int limit = 50}) => _col
       .orderBy('rating', descending: true)
       .limit(limit)

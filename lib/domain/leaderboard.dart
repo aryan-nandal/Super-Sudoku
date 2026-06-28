@@ -44,14 +44,12 @@ int? rankOf(List<LeaderboardEntry> entries, String userId) {
   return null;
 }
 
-/// Publishes a player's standing and reads the board. The local implementation
-/// is offline ([isRemote] == false); a Firestore implementation is online.
+/// Reads the leaderboard. Entries are written server-side (a Cloud Function),
+/// never by the client — so this interface is read-only. The local
+/// implementation is offline ([isRemote] == false).
 abstract interface class LeaderboardRepository {
   /// Whether this is a real online board (vs. the offline local stub).
   bool get isRemote;
-
-  /// Publish/refresh the current player's entry.
-  Future<void> publish(LeaderboardEntry entry);
 
   /// Live top-[limit] entries, highest rating first.
   Stream<List<LeaderboardEntry>> watchTop({int limit});

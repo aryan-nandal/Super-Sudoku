@@ -1,17 +1,19 @@
 import '../domain/auth.dart';
 
-/// No-op [SyncService] used until a real backend is wired. Keeps the app fully
-/// functional offline/local-only; swap for a `FirestoreSyncService` after
-/// `flutterfire configure` to enable cross-device sync and leaderboards.
+/// No-op [SyncService] used until a real backend is reachable. The app is fully
+/// functional offline; swap for [FirestoreSyncService] when Firebase is up.
 class LocalSyncService implements SyncService {
   @override
   bool get isRemote => false;
 
   @override
-  Future<void> pushSnapshot(String userId, Map<String, Object?> data) async {
-    // Intentionally no-op: data already lives in the local Drift store.
-  }
+  Future<void> setProfile(String userId, {required String displayName}) async {}
 
   @override
-  Future<Map<String, Object?>?> pullSnapshot(String userId) async => null;
+  Future<void> recordSolve(
+    String userId, {
+    required int difficultyIndex,
+    required int timeSeconds,
+    required int mistakes,
+  }) async {}
 }
