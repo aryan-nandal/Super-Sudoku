@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../engine/engine.dart';
+import '../../shared/widgets/app_background.dart';
+import '../../shared/widgets/glass_surface.dart';
 import '../settings/settings_controller.dart';
 import 'game_controller.dart';
 import 'widgets/conflict_banner.dart';
@@ -88,10 +90,16 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: (state.generating || state.game == null)
-            ? const Center(child: CircularProgressIndicator())
-            : _buildGame(state, notifier),
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          const Positioned.fill(child: AppBackground()),
+          SafeArea(
+            child: (state.generating || state.game == null)
+                ? const Center(child: CircularProgressIndicator())
+                : _buildGame(state, notifier),
+          ),
+        ],
       ),
     );
   }
@@ -154,20 +162,26 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
             ),
           ),
         ),
-        NumberPad(
-          onDigit: (d) {
-            HapticFeedback.selectionClick();
-            notifier.input(d);
-          },
-          onErase: notifier.erase,
-          onUndo: notifier.undo,
-          onRedo: notifier.redo,
-          onToggleNotes: notifier.toggleNotesMode,
-          onHint: () => _onHint(notifier),
-          notesMode: game.notesMode,
-          canUndo: game.canUndo,
-          canRedo: game.canRedo,
-          remaining: [for (var d = 1; d <= 9; d++) game.remaining(d)],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: GlassSurface(
+            padding: EdgeInsets.zero,
+            child: NumberPad(
+              onDigit: (d) {
+                HapticFeedback.selectionClick();
+                notifier.input(d);
+              },
+              onErase: notifier.erase,
+              onUndo: notifier.undo,
+              onRedo: notifier.redo,
+              onToggleNotes: notifier.toggleNotesMode,
+              onHint: () => _onHint(notifier),
+              notesMode: game.notesMode,
+              canUndo: game.canUndo,
+              canRedo: game.canRedo,
+              remaining: [for (var d = 1; d <= 9; d++) game.remaining(d)],
+            ),
+          ),
         ),
       ],
     );
