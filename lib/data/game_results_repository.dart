@@ -52,6 +52,16 @@ class GameResultsRepository {
     return rows.map(_toRecord).toList();
   }
 
+  /// A live stream of all results that re-emits whenever the table changes.
+  Stream<List<GameResultRecord>> watchAll() {
+    final database = db;
+    if (database == null) return Stream.value(const []);
+    return database
+        .select(database.gameResults)
+        .watch()
+        .map((rows) => rows.map(_toRecord).toList());
+  }
+
   Future<List<GameResultRecord>> forDifficulty(int difficultyIndex) async {
     final database = db;
     if (database == null) return [];

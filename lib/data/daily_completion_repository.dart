@@ -65,6 +65,16 @@ class DailyCompletionRepository {
   Future<bool> isCompleted(String date) async =>
       (await forDate(date)) != null;
 
+  /// A live stream of all completions that re-emits whenever the table changes.
+  Stream<List<DailyCompletionRecord>> watchAll() {
+    final database = db;
+    if (database == null) return Stream.value(const []);
+    return (database.select(database.dailyCompletions)
+          ..orderBy([(t) => OrderingTerm.asc(t.date)]))
+        .watch()
+        .map((rows) => rows.map(_toRecord).toList());
+  }
+
   Future<List<DailyCompletionRecord>> all() async {
     final database = db;
     if (database == null) return [];

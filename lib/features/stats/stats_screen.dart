@@ -7,6 +7,9 @@ import '../../engine/engine.dart';
 import 'stats_controller.dart';
 
 /// Shows streak, daily quests, and per-difficulty solve stats.
+///
+/// `statsProvider` is `autoDispose`, so each time this screen is opened a fresh
+/// element recomputes the stats — reflecting the latest solves.
 class StatsScreen extends ConsumerWidget {
   const StatsScreen({super.key});
 
