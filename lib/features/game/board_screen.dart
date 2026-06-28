@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../engine/engine.dart';
 import '../../shared/widgets/app_background.dart';
+import '../../shared/widgets/branded_loader.dart';
 import '../../shared/widgets/glass_surface.dart';
 import '../settings/settings_controller.dart';
 import 'game_controller.dart';
@@ -116,7 +117,7 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
           const Positioned.fill(child: AppBackground()),
           SafeArea(
             child: (state.generating || state.game == null)
-                ? const Center(child: CircularProgressIndicator())
+                ? const BrandedLoader()
                 : _buildGame(state, notifier),
           ),
           // On top of everything so the burst is visible over the board.
