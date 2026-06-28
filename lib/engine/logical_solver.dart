@@ -228,6 +228,30 @@ HintStep? nextHint(List<int> boardValues) {
   }
 }
 
+/// Walks the logical solve path of [puzzle], capturing positions where the next
+/// required placement is attributed to [target] (the hardest technique needed
+/// to unlock it). Returns up to [max] positions, each as the board state
+/// *before* the move plus the move itself — i.e. positions whose next deduction
+/// genuinely features that technique. Pure (operates on copies).
+List<({List<int> board, HintStep step})> collectTechniqueSteps(
+  List<int> puzzle,
+  Technique target, {
+  int max = 3,
+}) {
+  final values = List<int>.of(puzzle);
+  final out = <({List<int> board, HintStep step})>[];
+  var guard = 0;
+  while (out.length < max && guard++ < boardSize * 2) {
+    final h = nextHint(values);
+    if (h == null) break;
+    if (h.technique == target) {
+      out.add((board: List<int>.of(values), step: h));
+    }
+    values[h.cell] = h.digit;
+  }
+  return out;
+}
+
 HintStep _hintResult(Technique single, List<int> cellDigit, Technique? hardest) {
   // If an advanced elimination was needed, that's the teaching point.
   final tech =
