@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/daily.dart';
 import '../../domain/stats.dart';
 import '../../engine/engine.dart';
+import '../profile/widgets/rating_card.dart';
 import 'stats_controller.dart';
 
 /// Shows streak, daily quests, and per-difficulty solve stats.
@@ -25,6 +26,8 @@ class StatsScreen extends ConsumerWidget {
           key: const ValueKey('stats_list'),
           padding: const EdgeInsets.all(16),
           children: [
+            const RatingCard(),
+            const SizedBox(height: 16),
             _StreakCard(view: view),
             const SizedBox(height: 16),
             Text('Daily quests', style: Theme.of(context).textTheme.titleMedium),
