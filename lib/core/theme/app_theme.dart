@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'board_theme.dart';
 
@@ -13,6 +12,9 @@ abstract final class AppTheme {
 
   /// Deep, slightly-blue near-black for the dark "cognitive gym" surface.
   static const Color _darkSurface = Color(0xFF0E1116);
+
+  /// Bundled geometric typeface (offline-first — no runtime font fetch).
+  static const String _fontFamily = 'Outfit';
 
   static ThemeData light({bool reducedMotion = false}) =>
       _build(Brightness.light, reducedMotion);
@@ -47,12 +49,13 @@ abstract final class AppTheme {
     );
 
     return base.copyWith(
-      textTheme: GoogleFonts.outfitTextTheme(base.textTheme),
+      textTheme: base.textTheme.apply(fontFamily: _fontFamily),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.outfit(
+        titleTextStyle: TextStyle(
+          fontFamily: _fontFamily,
           fontSize: 22,
           fontWeight: FontWeight.w700,
           color: scheme.onSurface,
