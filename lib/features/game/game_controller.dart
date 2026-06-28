@@ -153,18 +153,22 @@ class GameController extends Notifier<GameState> {
     _gameSaves = ref.read(gameSaveRepositoryProvider);
     _dailyCompletions = ref.read(dailyCompletionRepositoryProvider);
     _results = ref.read(gameResultsRepositoryProvider);
-    _loadResultsCache();
-    return const GameState.initial();
-  }
 
-  Future<void> _loadResultsCache() async {
-    try {
-      _resultsCache
-        ..clear()
-        ..addAll(await _results.all());
-    } catch (_) {
-      // persistence unavailable — analytics simply start from empty
-    }
+    // Keep the analytics cache reactive: seed from the current stream value and
+    // update on every DB change, so "faster than average" sees ALL solves
+    // (free play + daily, written by either controller) — never a stale read.
+    _resultsCache.addAll(ref.read(gameResultsStreamProvider).value ?? const []);
+    ref.listen<AsyncValue<List<GameResultRecord>>>(gameResultsStreamProvider,
+        (prev, next) {
+      final list = next.value;
+      if (list != null) {
+        _resultsCache
+          ..clear()
+          ..addAll(list);
+      }
+    });
+
+    return const GameState.initial();
   }
 
   Future<void> newGame(Difficulty target) async {
@@ -353,7 +357,7 @@ class GameController extends Notifier<GameState> {
       isDaily: state.isDaily,
       date: dailyDateKey(state.dailyDate ?? DateTime.now()),
     );
-    _resultsCache.add(record);
+    // The results stream refreshes _resultsCache after this write.
     _fireAndForget(_results.record(record));
   }
 

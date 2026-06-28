@@ -56,6 +56,7 @@ void main() {
 
     // Unmount to dispose the clock timer cleanly.
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 1)); // drain drift stream timers
   });
 
   testWidgets('a wrong entry shows the conflict banner; rewind clears it',
@@ -87,5 +88,6 @@ void main() {
     expect(find.byKey(const ValueKey('conflict_banner')), findsNothing);
 
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 1)); // drain drift stream timers
   });
 }

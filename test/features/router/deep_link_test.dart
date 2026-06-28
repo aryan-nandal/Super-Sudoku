@@ -52,5 +52,6 @@ void main() {
     expect(find.textContaining('Daily #'), findsWidgets);
 
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 1)); // drain drift stream timers
   });
 }
