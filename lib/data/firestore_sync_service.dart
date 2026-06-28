@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../domain/auth.dart';
 
-/// Real [SyncService] backed by Cloud Firestore. Each user's data lives at
-/// `users/{userId}` (see firestore.rules — a user may only access their own doc).
+/// Real [SyncService] backed by Cloud Firestore. The client writes raw solve
+/// events to `users/{uid}/solves/{id}` and its display name to `users/{uid}`;
+/// a Cloud Function recomputes the authoritative rating and writes the
+/// `leaderboard/{uid}` entry (the client cannot write its own rating).
 class FirestoreSyncService implements SyncService {
   final FirebaseFirestore _db;
 
@@ -14,12 +16,23 @@ class FirestoreSyncService implements SyncService {
   bool get isRemote => true;
 
   @override
-  Future<void> pushSnapshot(String userId, Map<String, Object?> data) =>
-      _db.collection('users').doc(userId).set(data, SetOptions(merge: true));
+  Future<void> setProfile(String userId, {required String displayName}) =>
+      _db.collection('users').doc(userId).set(
+        {'displayName': displayName},
+        SetOptions(merge: true),
+      );
 
   @override
-  Future<Map<String, Object?>?> pullSnapshot(String userId) async {
-    final snap = await _db.collection('users').doc(userId).get();
-    return snap.data();
-  }
+  Future<void> recordSolve(
+    String userId, {
+    required int difficultyIndex,
+    required int timeSeconds,
+    required int mistakes,
+  }) =>
+      _db.collection('users').doc(userId).collection('solves').add({
+        'difficultyIndex': difficultyIndex,
+        'timeSeconds': timeSeconds,
+        'mistakes': mistakes,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
 }

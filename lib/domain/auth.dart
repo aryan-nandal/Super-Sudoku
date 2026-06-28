@@ -49,17 +49,23 @@ abstract interface class AuthRepository {
   Future<void> signOut();
 }
 
-/// Cloud-sync seam for mirroring per-user data (progress, stats, results).
+/// Cloud-sync seam for the server-trusted leaderboard: the client reports raw
+/// solve events and its display name; a server (Cloud Function) recomputes the
+/// authoritative rating from those events. The client never writes its rating.
 ///
-/// The local implementation is a no-op ([isRemote] == false). A
-/// `FirestoreSyncService` will implement this once Firebase is wired.
+/// The local implementation is a no-op ([isRemote] == false).
 abstract interface class SyncService {
   /// Whether a real remote backend is connected.
   bool get isRemote;
 
-  /// Push a snapshot of the user's data to the backend.
-  Future<void> pushSnapshot(String userId, Map<String, Object?> data);
+  /// Set the player's public display name.
+  Future<void> setProfile(String userId, {required String displayName});
 
-  /// Pull the user's snapshot from the backend, or null if none/offline.
-  Future<Map<String, Object?>?> pullSnapshot(String userId);
+  /// Report a completed solve for server-side rating computation.
+  Future<void> recordSolve(
+    String userId, {
+    required int difficultyIndex,
+    required int timeSeconds,
+    required int mistakes,
+  });
 }

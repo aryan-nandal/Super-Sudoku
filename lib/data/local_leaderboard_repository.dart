@@ -6,9 +6,6 @@ class LocalLeaderboardRepository implements LeaderboardRepository {
   bool get isRemote => false;
 
   @override
-  Future<void> publish(LeaderboardEntry entry) async {}
-
-  @override
   Stream<List<LeaderboardEntry>> watchTop({int limit = 50}) =>
       Stream.value(const []);
 }

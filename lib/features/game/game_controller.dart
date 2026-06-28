@@ -12,6 +12,7 @@ import '../../domain/puzzle_data.dart';
 import '../../domain/stats.dart';
 import '../../domain/sudoku_game.dart';
 import '../../engine/engine.dart';
+import '../auth/auth_controller.dart';
 
 /// Persistence slot id for the free-play game.
 const String _freeSlot = 'free';
@@ -361,6 +362,24 @@ class GameController extends Notifier<GameState> {
     );
     // The results stream refreshes _resultsCache after this write.
     _fireAndForget(_results.record(record));
+    _reportSolveToServer(di, time, game.mistakes);
+  }
+
+  /// Report the solve to the backend (when online) so the server can recompute
+  /// the authoritative leaderboard rating. Fire-and-forget; failures are
+  /// ignored (the local rating still updates from the results stream).
+  void _reportSolveToServer(int difficultyIndex, int timeSeconds, int mistakes) {
+    final sync = ref.read(syncServiceProvider);
+    if (!sync.isRemote) return;
+    _fireAndForget(() async {
+      final user = await ref.read(currentUserProvider.future);
+      await sync.recordSolve(
+        user.id,
+        difficultyIndex: difficultyIndex,
+        timeSeconds: timeSeconds,
+        mistakes: mistakes,
+      );
+    }());
   }
 
   /// Fire-and-forget a persistence write, swallowing failures so a broken
