@@ -24,5 +24,9 @@ void main() {
     expect(find.text('Solved: 0'), findsOneWidget);
     // Three quests, all incomplete with no activity.
     expect(find.byIcon(Icons.radio_button_unchecked), findsNWidgets(3));
+
+    // Dispose the scope (closes DB + drift streams) and drain coalescing timers.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 1));
   });
 }
