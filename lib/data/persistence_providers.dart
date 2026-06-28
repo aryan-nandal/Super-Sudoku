@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/auth.dart';
 import 'daily_completion_repository.dart';
 import 'db/app_database.dart';
+import 'firebase_auth_repository.dart';
+import 'firestore_sync_service.dart';
 import 'game_results_repository.dart';
 import 'game_save_repository.dart';
 import 'learning_repository.dart';
@@ -59,12 +61,20 @@ final lessonProgressStreamProvider = StreamProvider<Set<String>>(
   (ref) => ref.watch(learningRepositoryProvider).watchCompleted(),
 );
 
-/// Identity seam — local anonymous now; a Firebase impl drops in later.
+/// Whether Firebase initialized successfully. Overridden in `main()` after
+/// `Firebase.initializeApp`; defaults to false so tests use the local impls.
+final firebaseReadyProvider = Provider<bool>((ref) => false);
+
+/// Identity seam — Firebase Auth when available, else local anonymous.
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  if (ref.watch(firebaseReadyProvider)) return FirebaseAuthRepository();
   final repo = LocalAuthRepository(ref.watch(settingsRepositoryProvider));
   ref.onDispose(repo.dispose);
   return repo;
 });
 
-/// Cloud-sync seam — no-op local impl now; a Firestore impl drops in later.
-final syncServiceProvider = Provider<SyncService>((ref) => LocalSyncService());
+/// Cloud-sync seam — Firestore when available, else a no-op local impl.
+final syncServiceProvider = Provider<SyncService>((ref) =>
+    ref.watch(firebaseReadyProvider)
+        ? FirestoreSyncService()
+        : LocalSyncService());

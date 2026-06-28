@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "303864233924",
+    "project_id": "super-sudoku-99labs",
+    "storage_bucket": "super-sudoku-99labs.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303864233924:android:0641c9a26e8a531b9aee91",
+        "android_client_info": {
+          "package_name": "com.ninetyninelabs.super_sudoku"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG2Ta7XQG2S1qQyJ7nbiIjmS99h8VX4oI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

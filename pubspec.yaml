@@ -42,6 +42,9 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   google_fonts: ^8.1.0
+  firebase_core: ^4.11.0
+  firebase_auth: ^6.5.4
+  cloud_firestore: ^6.6.0
   # NOTE: riverpod_generator (codegen) is intentionally omitted for now — its
   # stable release lags behind flutter_riverpod 3.3 / riverpod_annotation 4.x
   # and cannot co-resolve. Providers are written manually until then; switching
