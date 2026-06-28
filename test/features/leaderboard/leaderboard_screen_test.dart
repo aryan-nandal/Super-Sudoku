@@ -18,6 +18,8 @@ class _FakeAuth implements AuthRepository {
   @override
   Future<AppUser> signInAnonymously() async => _me;
   @override
+  Future<AppUser> updateDisplayName(String name) async => _me;
+  @override
   Future<void> signOut() async {}
 }
 

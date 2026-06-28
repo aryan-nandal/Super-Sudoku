@@ -46,6 +46,10 @@ abstract interface class AuthRepository {
   /// calls return the same stable id so progress is never orphaned.
   Future<AppUser> signInAnonymously();
 
+  /// Sets (or clears, when blank) the player's display name and returns the
+  /// updated user. Persisted so it survives restarts.
+  Future<AppUser> updateDisplayName(String name);
+
   Future<void> signOut();
 }
 

@@ -26,6 +26,15 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<AppUser> updateDisplayName(String name) async {
+    final user = _auth.currentUser ?? (await _auth.signInAnonymously()).user!;
+    final trimmed = name.trim();
+    await user.updateDisplayName(trimmed.isEmpty ? null : trimmed);
+    await user.reload();
+    return _map(_auth.currentUser)!;
+  }
+
+  @override
   Future<void> signOut() => _auth.signOut();
 
   AppUser? _map(fb.User? u) => u == null

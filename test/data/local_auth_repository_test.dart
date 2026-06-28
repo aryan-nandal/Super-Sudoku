@@ -43,6 +43,20 @@ void main() {
     await sub.cancel();
   });
 
+  test('updateDisplayName sets and persists the name (blank clears it)',
+      () async {
+    final auth = LocalAuthRepository(settings);
+    final named = await auth.updateDisplayName('  SudokuFan  ');
+    expect(named.displayName, 'SudokuFan');
+
+    // Persisted: a fresh repo over the same store restores the name.
+    final restored = await LocalAuthRepository(settings).signInAnonymously();
+    expect(restored.displayName, 'SudokuFan');
+
+    final cleared = await auth.updateDisplayName('   ');
+    expect(cleared.displayName, isNull);
+  });
+
   test('signOut clears currentUser but keeps the local id', () async {
     final auth = LocalAuthRepository(settings);
     final user = await auth.signInAnonymously();
