@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../auth/auth_controller.dart';
 import 'settings_controller.dart';
 
 /// Player-facing display preferences.
@@ -16,6 +17,8 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
+          const _AccountTile(),
+          const Divider(),
           SwitchListTile(
             key: const ValueKey('setting_auto_candidates'),
             title: const Text('Auto candidate marks'),
@@ -78,6 +81,51 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Account section — backed by the auth abstraction. Anonymous today; the
+/// "sign in to sync" affordance is the deferred-registration entry point that a
+/// real Firebase implementation will fulfil.
+class _AccountTile extends ConsumerWidget {
+  const _AccountTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
+    return user.when(
+      loading: () => const ListTile(
+        leading: Icon(Icons.person_outline),
+        title: Text('Account'),
+        subtitle: Text('Setting up…'),
+      ),
+      error: (_, _) => const ListTile(
+        leading: Icon(Icons.person_off_outlined),
+        title: Text('Account'),
+        subtitle: Text('Unavailable'),
+      ),
+      data: (u) => ListTile(
+        key: const ValueKey('account_tile'),
+        leading: const Icon(Icons.person_outline),
+        title: Text(u.displayName ?? 'Playing as Guest'),
+        subtitle: Text(
+          u.isAnonymous
+              ? 'Progress is saved on this device. Sign in to sync & compete.'
+              : 'Signed in',
+        ),
+        trailing: u.isAnonymous
+            ? TextButton(
+                key: const ValueKey('account_sign_in'),
+                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Account sync & leaderboards are coming soon.'),
+                  ),
+                ),
+                child: const Text('Sign in'),
+              )
+            : null,
       ),
     );
   }
