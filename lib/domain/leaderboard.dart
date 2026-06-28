@@ -44,12 +44,16 @@ int? rankOf(List<LeaderboardEntry> entries, String userId) {
   return null;
 }
 
-/// Reads the leaderboard. Entries are written server-side (a Cloud Function),
-/// never by the client — so this interface is read-only. The local
+/// Reads (and, in free/client-trusted mode, writes) the leaderboard. The local
 /// implementation is offline ([isRemote] == false).
 abstract interface class LeaderboardRepository {
   /// Whether this is a real online board (vs. the offline local stub).
   bool get isRemote;
+
+  /// Publish/refresh the current player's entry. Used in the free (Spark) trust
+  /// model; under the Blaze model the server writes entries instead and this is
+  /// blocked by rules.
+  Future<void> publish(LeaderboardEntry entry);
 
   /// Live top-[limit] entries, highest rating first.
   Stream<List<LeaderboardEntry>> watchTop({int limit});

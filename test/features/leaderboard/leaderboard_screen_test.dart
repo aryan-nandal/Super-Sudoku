@@ -27,6 +27,8 @@ class _FakeBoard implements LeaderboardRepository {
   @override
   bool get isRemote => true;
   @override
+  Future<void> publish(LeaderboardEntry entry) async {}
+  @override
   Stream<List<LeaderboardEntry>> watchTop({int limit = 50}) => Stream.value(const [
         LeaderboardEntry(userId: 'alice', displayName: 'Alice', rating: 1800),
         LeaderboardEntry(userId: 'me', displayName: 'Me', rating: 1200),

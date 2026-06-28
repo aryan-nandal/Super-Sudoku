@@ -25,12 +25,25 @@ service cloud.firestore {
       }
     }
 
-    // Public leaderboard: anyone may read; NOBODY may write from a client.
-    // Entries are written only by the Cloud Function (Admin SDK), which
-    // recomputes the rating server-side from validated solves (anti-cheat).
+    // Public leaderboard: anyone may read.
+    //
+    // FREE (Spark) model — the client writes its own entry; rules validate the
+    // shape and bound the rating so blatantly bogus values are rejected. This is
+    // honest-client (a determined cheater could still spoof within bounds).
+    //
+    // BLAZE (server-authoritative) model — replace the `allow write` below with
+    // `allow write: if false;` and deploy the Cloud Function so only the Admin
+    // SDK writes entries (full anti-cheat). Also flip
+    // kServerAuthoritativeLeaderboard to true in the app.
     match /leaderboard/{userId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 0
+        && request.resource.data.rating <= 3500
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() <= 24;
     }
     // Everything else is denied by default.
   }
