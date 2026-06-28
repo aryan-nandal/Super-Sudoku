@@ -9,7 +9,7 @@ class AppBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final glow = isDark ? 0.22 : 0.10;
+    final glow = isDark ? 0.22 : 0.16;
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(

@@ -20,13 +20,28 @@ class BoardHero extends StatelessWidget {
           color: scheme.primary.withValues(alpha: isDark ? 0.38 : 0.22),
           width: 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: scheme.primary.withValues(alpha: isDark ? 0.30 : 0.14),
-            blurRadius: 30,
-            spreadRadius: -6,
-          ),
-        ],
+        boxShadow: isDark
+            // Neon glow against the dark backdrop.
+            ? [
+                BoxShadow(
+                  color: scheme.primary.withValues(alpha: 0.30),
+                  blurRadius: 30,
+                  spreadRadius: -6,
+                ),
+              ]
+            // Soft elevation so the white card lifts off the light backdrop.
+            : [
+                BoxShadow(
+                  color: scheme.shadow.withValues(alpha: 0.12),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: scheme.primary.withValues(alpha: 0.10),
+                  blurRadius: 24,
+                  spreadRadius: -8,
+                ),
+              ],
       ),
       child: child,
     );
