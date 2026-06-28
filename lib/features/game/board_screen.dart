@@ -84,6 +84,11 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
             onPressed: () => context.push('/daily'),
           ),
           IconButton(
+            tooltip: 'Learn',
+            icon: const Icon(Icons.school_outlined),
+            onPressed: () => context.push('/learn'),
+          ),
+          IconButton(
             tooltip: 'Stats',
             icon: const Icon(Icons.bar_chart_rounded),
             onPressed: () => context.push('/stats'),

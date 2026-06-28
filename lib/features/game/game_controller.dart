@@ -67,6 +67,10 @@ class GameState {
   /// 1-based daily number; 0 for free play.
   final int dayNumber;
 
+  /// Whether this session is a learning-path practice puzzle (not saved, not
+  /// counted in stats).
+  final bool isLesson;
+
   /// The active hint step, if any (ignored when [hintTier] is 0).
   final HintStep? hintStep;
 
@@ -91,6 +95,7 @@ class GameState {
     this.isDaily = false,
     this.dailyDate,
     this.dayNumber = 0,
+    this.isLesson = false,
     this.hintStep,
     this.hintTier = 0,
     this.fasterThanAveragePercent,
@@ -110,6 +115,7 @@ class GameState {
     bool? isDaily,
     DateTime? dailyDate,
     int? dayNumber,
+    bool? isLesson,
     HintStep? hintStep,
     int? hintTier,
     int? fasterThanAveragePercent,
@@ -126,6 +132,7 @@ class GameState {
       isDaily: isDaily ?? this.isDaily,
       dailyDate: dailyDate ?? this.dailyDate,
       dayNumber: dayNumber ?? this.dayNumber,
+      isLesson: isLesson ?? this.isLesson,
       hintStep: hintStep ?? this.hintStep,
       hintTier: hintTier ?? this.hintTier,
       fasterThanAveragePercent:
@@ -213,6 +220,22 @@ class GameController extends Notifier<GameState> {
     } else {
       await newGame(target);
     }
+  }
+
+  /// Start a learning-path practice puzzle at [target] difficulty. Not saved
+  /// to the free slot and not counted in stats.
+  Future<void> startLesson(Difficulty target) async {
+    state = state.copyWith(generating: true, solved: false, running: false);
+    final data = await _generate(target);
+    state = GameState(
+      game: SudokuGame.from(data),
+      difficulty: data.difficulty,
+      generating: false,
+      solved: false,
+      startedAt: DateTime.now(),
+      running: true,
+      isLesson: true,
+    );
   }
 
   /// Load and start the global Daily puzzle for [date] (deterministic).
@@ -322,6 +345,7 @@ class GameController extends Notifier<GameState> {
   // --- Persistence -----------------------------------------------------------
 
   void _persistAfterMove(bool justSolved) {
+    if (state.isLesson) return; // practice — not saved, not counted in stats
     if (justSolved) _recordSolve();
     if (state.isDaily) {
       if (justSolved) _recordDailyCompletion();
@@ -424,4 +448,8 @@ final gameControllerProvider =
 
 /// Daily session — a separate instance so it never clobbers free play.
 final dailyGameControllerProvider =
+    NotifierProvider<GameController, GameState>(GameController.new);
+
+/// Learning-path practice session — its own instance, independent of the others.
+final lessonGameControllerProvider =
     NotifierProvider<GameController, GameState>(GameController.new);

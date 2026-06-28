@@ -4,6 +4,7 @@ import 'package:super_sudoku/data/daily_completion_repository.dart';
 import 'package:super_sudoku/data/db/app_database.dart';
 import 'package:super_sudoku/data/game_results_repository.dart';
 import 'package:super_sudoku/data/game_save_repository.dart';
+import 'package:super_sudoku/data/learning_repository.dart';
 import 'package:super_sudoku/data/settings_repository.dart';
 import 'package:super_sudoku/engine/engine.dart';
 
@@ -144,6 +145,19 @@ void main() {
       expect((await repo.all()).length, 3);
       expect((await repo.forDifficulty(1)).length, 2);
       expect((await repo.forDifficulty(2)).single.isDaily, isTrue);
+    });
+  });
+
+  group('LearningRepository', () {
+    test('records and reports completed lesson nodes', () async {
+      final repo = LearningRepository(db);
+      expect(await repo.completed(), isEmpty);
+      await repo.markCompleted('naked_single');
+      await repo.markCompleted('hidden_single');
+      expect(await repo.completed(), {'naked_single', 'hidden_single'});
+      // Idempotent: re-completing doesn't duplicate.
+      await repo.markCompleted('naked_single');
+      expect((await repo.completed()).length, 2);
     });
   });
 }

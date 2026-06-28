@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 /// A subtle, static brand backdrop: deep base with soft neon glows in the
 /// corners. Static (no animation) so it's cheap and reduced-motion safe.
+///
+/// Use as a full-screen background (`Positioned.fill(child: AppBackground())`)
+/// or wrap content directly via [child].
 class AppBackground extends StatelessWidget {
-  const AppBackground({super.key});
+  final Widget? child;
+
+  const AppBackground({super.key, this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +28,7 @@ class AppBackground extends StatelessWidget {
           stops: const [0.0, 0.55, 1.0],
         ),
       ),
+      child: child,
     );
   }
 }
