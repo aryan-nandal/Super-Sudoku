@@ -44,6 +44,21 @@ class LocalAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<AppUser> updateDisplayName(String name) async {
+    final user = await signInAnonymously();
+    final trimmed = name.trim();
+    await _settings.setString(_displayNameKey, trimmed);
+    final updated = AppUser(
+      id: user.id,
+      isAnonymous: user.isAnonymous,
+      displayName: trimmed.isEmpty ? null : trimmed,
+    );
+    _current = updated;
+    _controller.add(updated);
+    return updated;
+  }
+
+  @override
   Future<void> signOut() async {
     // Keep the local id so re-signing-in restores the same anonymous progress.
     _current = null;

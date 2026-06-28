@@ -110,23 +110,46 @@ class _AccountTile extends ConsumerWidget {
         key: const ValueKey('account_tile'),
         leading: const Icon(Icons.person_outline),
         title: Text(u.displayName ?? 'Playing as Guest'),
-        subtitle: Text(
-          u.isAnonymous
-              ? 'Progress is saved on this device. Sign in to sync & compete.'
-              : 'Signed in',
+        subtitle: const Text(
+          'Tap to set the name shown on the leaderboard.',
         ),
-        trailing: u.isAnonymous
-            ? TextButton(
-                key: const ValueKey('account_sign_in'),
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Account sync & leaderboards are coming soon.'),
-                  ),
-                ),
-                child: const Text('Sign in'),
-              )
-            : null,
+        trailing: const Icon(Icons.edit_outlined),
+        onTap: () => _editName(context, ref, u.displayName),
       ),
     );
+  }
+
+  Future<void> _editName(
+      BuildContext context, WidgetRef ref, String? current) async {
+    final controller = TextEditingController(text: current ?? '');
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Your name'),
+        content: TextField(
+          key: const ValueKey('name_field'),
+          controller: controller,
+          autofocus: true,
+          maxLength: 20,
+          textInputAction: TextInputAction.done,
+          decoration: const InputDecoration(hintText: 'e.g. SudokuFan'),
+          onSubmitted: (v) => Navigator.pop(ctx, v),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            key: const ValueKey('name_save'),
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (name != null) {
+      await ref.read(accountControllerProvider).setDisplayName(name);
+    }
   }
 }
