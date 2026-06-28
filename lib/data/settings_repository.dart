@@ -47,4 +47,8 @@ class SettingsRepository {
   }
 
   Future<void> setDouble(String key, double value) => _set(key, '$value');
+
+  Future<String?> getString(String key) => _raw(key);
+
+  Future<void> setString(String key, String value) => _set(key, value);
 }

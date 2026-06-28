@@ -1,10 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../domain/auth.dart';
 import 'daily_completion_repository.dart';
 import 'db/app_database.dart';
 import 'game_results_repository.dart';
 import 'game_save_repository.dart';
 import 'learning_repository.dart';
+import 'local_auth_repository.dart';
+import 'local_sync_service.dart';
 import 'settings_repository.dart';
 
 /// The app database, or null when it can't be opened (e.g. web without the
@@ -55,3 +58,13 @@ final learningRepositoryProvider = Provider<LearningRepository>(
 final lessonProgressStreamProvider = StreamProvider<Set<String>>(
   (ref) => ref.watch(learningRepositoryProvider).watchCompleted(),
 );
+
+/// Identity seam — local anonymous now; a Firebase impl drops in later.
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  final repo = LocalAuthRepository(ref.watch(settingsRepositoryProvider));
+  ref.onDispose(repo.dispose);
+  return repo;
+});
+
+/// Cloud-sync seam — no-op local impl now; a Firestore impl drops in later.
+final syncServiceProvider = Provider<SyncService>((ref) => LocalSyncService());
