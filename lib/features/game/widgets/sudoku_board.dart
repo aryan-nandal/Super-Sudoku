@@ -34,6 +34,10 @@ class SudokuBoard extends StatelessWidget {
   /// players) rather than relying on the red tint alone.
   final bool colorBlindMode;
 
+  /// Enables micro-animations (selection transitions, place-pop). Off honors
+  /// the reduce-motion setting.
+  final bool animate;
+
   const SudokuBoard({
     super.key,
     required this.game,
@@ -44,6 +48,7 @@ class SudokuBoard extends StatelessWidget {
     this.hintCell,
     this.hintTier = 0,
     this.colorBlindMode = false,
+    this.animate = true,
   });
 
   @override
@@ -75,6 +80,7 @@ class SudokuBoard extends StatelessWidget {
                     hintCell: hintCell,
                     hintTier: hintTier,
                     colorBlindMode: colorBlindMode,
+                    animate: animate,
                     onTap: () => onCellTap(i),
                   ),
                 ),
@@ -107,6 +113,7 @@ class _Cell extends StatelessWidget {
   final int? hintCell;
   final int hintTier;
   final bool colorBlindMode;
+  final bool animate;
   final VoidCallback onTap;
 
   const _Cell({
@@ -120,6 +127,7 @@ class _Cell extends StatelessWidget {
     required this.hintCell,
     required this.hintTier,
     required this.colorBlindMode,
+    required this.animate,
     required this.onTap,
   });
 
@@ -140,7 +148,11 @@ class _Cell extends StatelessWidget {
       child: Semantics(
         label: _semanticLabel(value),
         selected: isSelected,
-        child: Container(
+        child: AnimatedContainer(
+          duration: animate
+              ? const Duration(milliseconds: 120)
+              : Duration.zero,
+          curve: Curves.easeOut,
           decoration: BoxDecoration(
             color: color,
             // Neon ring on the selected cell; a non-color border for conflicts
@@ -152,7 +164,19 @@ class _Cell extends StatelessWidget {
                     : null,
           ),
           alignment: Alignment.center,
-          child: _content(context, value, isError),
+          child: AnimatedSwitcher(
+            duration: animate
+                ? const Duration(milliseconds: 160)
+                : Duration.zero,
+            transitionBuilder: (child, anim) => ScaleTransition(
+              scale: Tween<double>(begin: 0.6, end: 1).animate(anim),
+              child: FadeTransition(opacity: anim, child: child),
+            ),
+            child: KeyedSubtree(
+              key: ValueKey(_contentKey(value)),
+              child: _content(context, value, isError),
+            ),
+          ),
         ),
       ),
     );
@@ -208,6 +232,16 @@ class _Cell extends StatelessWidget {
       }
     }
     return const SizedBox.shrink();
+  }
+
+  /// Identity for the AnimatedSwitcher: changes when a value or user note
+  /// changes (so placements pop). Auto-candidates don't key, to avoid noise.
+  String _contentKey(int value) {
+    if (value != 0) return 'v$value';
+    if (game.notes[index].isNotEmpty) {
+      return 'n${(game.notes[index].toList()..sort()).join()}';
+    }
+    return 'e';
   }
 
   String _semanticLabel(int value) {

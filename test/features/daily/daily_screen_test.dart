@@ -51,6 +51,8 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(ValueKey('digit_${solution[40]}')));
     await tester.pump();
+    // Solve triggers a celebration; the result sheet follows after a short delay.
+    await tester.pump(const Duration(milliseconds: 700));
     await tester.pump(const Duration(milliseconds: 400)); // sheet animation
 
     // The shareable result card appears.

@@ -15,6 +15,7 @@ import 'widgets/conflict_banner.dart';
 import 'widgets/game_top_bar.dart';
 import 'widgets/hint_banner.dart';
 import 'widgets/number_pad.dart';
+import 'widgets/solve_celebration.dart';
 import 'widgets/sudoku_board.dart';
 
 /// The main play screen: top bar + board + number pad, wired to the controller.
@@ -27,6 +28,7 @@ class BoardScreen extends ConsumerStatefulWidget {
 
 class _BoardScreenState extends ConsumerState<BoardScreen> {
   Timer? _ticker;
+  bool _celebrating = false;
 
   @override
   void initState() {
@@ -61,7 +63,14 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
     ref.listen<GameState>(gameControllerProvider, (prev, next) {
       if (next.solved && (prev?.solved != true)) {
         HapticFeedback.mediumImpact();
-        _showWinDialog(next);
+        if (ref.read(settingsControllerProvider).reducedMotion) {
+          _showWinDialog(next);
+        } else {
+          setState(() => _celebrating = true);
+          Future.delayed(const Duration(milliseconds: 650), () {
+            if (mounted) _showWinDialog(next);
+          });
+        }
       }
     });
 
@@ -100,6 +109,15 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : _buildGame(state, notifier),
           ),
+          // On top of everything so the burst is visible over the board.
+          if (_celebrating)
+            Positioned.fill(
+              child: SolveCelebration(
+                onDone: () {
+                  if (mounted) setState(() => _celebrating = false);
+                },
+              ),
+            ),
         ],
       ),
     );
@@ -159,6 +177,7 @@ class _BoardScreenState extends ConsumerState<BoardScreen> {
                     hintCell: state.hintStep?.cell,
                     hintTier: state.hintTier,
                     colorBlindMode: settings.colorBlindMode,
+                    animate: !settings.reducedMotion,
                   ),
                 ),
               ),

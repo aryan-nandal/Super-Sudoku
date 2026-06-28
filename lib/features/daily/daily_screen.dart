@@ -14,6 +14,7 @@ import '../game/widgets/conflict_banner.dart';
 import '../game/widgets/game_top_bar.dart';
 import '../game/widgets/hint_banner.dart';
 import '../game/widgets/number_pad.dart';
+import '../game/widgets/solve_celebration.dart';
 import '../game/widgets/sudoku_board.dart';
 import '../settings/settings_controller.dart';
 import 'widgets/daily_result_card.dart';
@@ -29,6 +30,7 @@ class DailyScreen extends ConsumerStatefulWidget {
 
 class _DailyScreenState extends ConsumerState<DailyScreen> {
   Timer? _ticker;
+  bool _celebrating = false;
 
   @override
   void initState() {
@@ -62,7 +64,14 @@ class _DailyScreenState extends ConsumerState<DailyScreen> {
     ref.listen<GameState>(dailyGameControllerProvider, (prev, next) {
       if (next.solved && (prev?.solved != true)) {
         HapticFeedback.mediumImpact();
-        _showResult(notifier);
+        if (ref.read(settingsControllerProvider).reducedMotion) {
+          _showResult(notifier);
+        } else {
+          setState(() => _celebrating = true);
+          Future.delayed(const Duration(milliseconds: 650), () {
+            if (mounted) _showResult(notifier);
+          });
+        }
       }
     });
 
@@ -79,6 +88,14 @@ class _DailyScreenState extends ConsumerState<DailyScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : _buildGame(state, notifier),
           ),
+          if (_celebrating)
+            Positioned.fill(
+              child: SolveCelebration(
+                onDone: () {
+                  if (mounted) setState(() => _celebrating = false);
+                },
+              ),
+            ),
         ],
       ),
     );
@@ -128,6 +145,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen> {
                     hintCell: state.hintStep?.cell,
                     hintTier: state.hintTier,
                     colorBlindMode: settings.colorBlindMode,
+                    animate: !settings.reducedMotion,
                   ),
                 ),
               ),
