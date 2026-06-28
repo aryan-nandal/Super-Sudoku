@@ -1,14 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/auth.dart';
+import '../domain/leaderboard.dart';
 import 'daily_completion_repository.dart';
 import 'db/app_database.dart';
 import 'firebase_auth_repository.dart';
+import 'firebase_leaderboard_repository.dart';
 import 'firestore_sync_service.dart';
 import 'game_results_repository.dart';
 import 'game_save_repository.dart';
 import 'learning_repository.dart';
 import 'local_auth_repository.dart';
+import 'local_leaderboard_repository.dart';
 import 'local_sync_service.dart';
 import 'settings_repository.dart';
 
@@ -78,3 +81,9 @@ final syncServiceProvider = Provider<SyncService>((ref) =>
     ref.watch(firebaseReadyProvider)
         ? FirestoreSyncService()
         : LocalSyncService());
+
+/// Leaderboard seam — Firestore when available, else an offline local stub.
+final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) =>
+    ref.watch(firebaseReadyProvider)
+        ? FirebaseLeaderboardRepository()
+        : LocalLeaderboardRepository());

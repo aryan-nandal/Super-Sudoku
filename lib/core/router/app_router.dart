@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/daily/daily_screen.dart';
 import '../../features/game/board_screen.dart';
+import '../../features/leaderboard/leaderboard_screen.dart';
 import '../../features/learning/learning_path_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/stats/stats_screen.dart';
@@ -35,6 +36,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'learn',
             builder: (context, state) => const LearningPathScreen(),
+          ),
+          GoRoute(
+            path: 'leaderboard',
+            builder: (context, state) => const LeaderboardScreen(),
           ),
         ],
       ),
