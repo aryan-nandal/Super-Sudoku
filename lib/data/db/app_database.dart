@@ -65,8 +65,19 @@ class GameResults extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
-  /// Opens the on-device database for app use.
-  AppDatabase.open() : super(driftDatabase(name: 'super_sudoku'));
+  /// Opens the on-device database for app use. On web this uses the bundled
+  /// sqlite3 wasm + drift worker (served from web/); on mobile/desktop the
+  /// `web` options are ignored and a native database is used.
+  AppDatabase.open()
+      : super(
+          driftDatabase(
+            name: 'super_sudoku',
+            web: DriftWebOptions(
+              sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+              driftWorker: Uri.parse('drift_worker.js'),
+            ),
+          ),
+        );
 
   @override
   int get schemaVersion => 2;

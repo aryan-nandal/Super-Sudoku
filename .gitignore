@@ -52,3 +52,7 @@ docs/
 
 # Claude Code local tooling (settings, worktrees) — never commit
 .claude/
+
+# Compiled drift web worker artifacts (keep .js, not these)
+web/drift_worker.js.deps
+web/drift_worker.js.map
