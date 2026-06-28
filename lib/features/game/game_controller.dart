@@ -369,6 +369,9 @@ class GameController extends Notifier<GameState> {
   /// the authoritative leaderboard rating. Fire-and-forget; failures are
   /// ignored (the local rating still updates from the results stream).
   void _reportSolveToServer(int difficultyIndex, int timeSeconds, int mistakes) {
+    // Only needed for the Blaze (server-authoritative) model; in the free model
+    // the client publishes its rating directly when the board is opened.
+    if (!kServerAuthoritativeLeaderboard) return;
     final sync = ref.read(syncServiceProvider);
     if (!sync.isRemote) return;
     _fireAndForget(() async {

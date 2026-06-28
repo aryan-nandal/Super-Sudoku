@@ -68,6 +68,17 @@ final lessonProgressStreamProvider = StreamProvider<Set<String>>(
 /// `Firebase.initializeApp`; defaults to false so tests use the local impls.
 final firebaseReadyProvider = Provider<bool>((ref) => false);
 
+/// Leaderboard trust model.
+///
+/// - `false` (default — Firebase **Spark / free** plan): the client computes and
+///   publishes its own rating; Firestore rules validate it (range/length). No
+///   Cloud Functions needed, so it runs entirely on the free tier.
+/// - `true` (Firebase **Blaze** plan): the client only reports solve events +
+///   profile; a deployed Cloud Function computes the authoritative rating and
+///   writes the leaderboard. Flip this on AFTER `firebase deploy --only
+///   functions` and switching the leaderboard rule to `write:false`.
+const bool kServerAuthoritativeLeaderboard = false;
+
 /// Identity seam — Firebase Auth when available, else local anonymous.
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   if (ref.watch(firebaseReadyProvider)) return FirebaseAuthRepository();
