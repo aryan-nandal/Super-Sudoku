@@ -73,6 +73,7 @@ void main() {
     expect(find.byKey(const ValueKey('hint_banner')), findsNothing);
 
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 1)); // drain drift stream timers
   });
 
   testWidgets('opens the Settings screen from the board', (tester) async {
@@ -83,6 +84,7 @@ void main() {
     expect(find.byType(SettingsScreen), findsOneWidget);
     expect(find.byKey(const ValueKey('setting_auto_candidates')), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 1)); // drain drift stream timers
   });
 
   testWidgets('opens the Daily puzzle from the board', (tester) async {
@@ -96,5 +98,6 @@ void main() {
     expect(find.textContaining('Daily #'), findsWidgets);
     expect(find.byKey(const ValueKey('cell_2')), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 1)); // drain drift stream timers
   });
 }

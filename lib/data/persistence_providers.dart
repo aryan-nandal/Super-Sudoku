@@ -34,3 +34,14 @@ final dailyCompletionRepositoryProvider = Provider<DailyCompletionRepository>(
 final gameResultsRepositoryProvider = Provider<GameResultsRepository>(
   (ref) => GameResultsRepository(ref.watch(appDatabaseProvider)),
 );
+
+/// Live streams of the tables — re-emit on every DB change. Shared so any
+/// feature can stay reactive instead of reading the DB once.
+final gameResultsStreamProvider = StreamProvider<List<GameResultRecord>>(
+  (ref) => ref.watch(gameResultsRepositoryProvider).watchAll(),
+);
+
+final dailyCompletionsStreamProvider =
+    StreamProvider<List<DailyCompletionRecord>>(
+  (ref) => ref.watch(dailyCompletionRepositoryProvider).watchAll(),
+);
