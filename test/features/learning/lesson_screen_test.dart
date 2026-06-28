@@ -45,19 +45,23 @@ void main() {
     }
 
     await settle();
-    expect(find.text('Step 1 of $kLessonSteps'), findsOneWidget);
+    expect(find.textContaining('Step 1 of'), findsOneWidget);
     expect(find.byKey(const ValueKey('lesson_instruction')), findsOneWidget);
 
-    // Make one correct placement → the step advances live.
     final container =
         ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
+    // This lesson should have more than one position to show live advance.
+    expect(container.read(lessonControllerProvider).totalSteps,
+        greaterThanOrEqualTo(2));
+
+    // Make the technique move → the step advances live.
     final n = container.read(lessonControllerProvider.notifier);
     final t = container.read(lessonControllerProvider).target!;
     n.select(t.cell);
     n.input(t.digit);
     await settle();
 
-    expect(find.text('Step 2 of $kLessonSteps'), findsOneWidget);
+    expect(find.textContaining('Step 2 of'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
   });

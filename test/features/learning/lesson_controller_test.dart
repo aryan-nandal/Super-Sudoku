@@ -15,6 +15,14 @@ void main() {
   const solutionStr =
       '534678912672195348198342567859761423426853791713924856961537284287419635345286179';
 
+  const node = LessonNode(
+    id: 'drill',
+    technique: Technique.nakedSingle,
+    title: 'Drill',
+    summary: 's',
+    practiceDifficulty: Difficulty.easy,
+  );
+
   Future<ProviderContainer> started() async {
     final data = PuzzleData(
       puzzle: parseBoard(puzzleStr),
@@ -27,19 +35,22 @@ void main() {
       puzzleGeneratorProvider.overrideWithValue((_) async => data),
     ]);
     addTearDown(c.dispose);
-    await c.read(lessonControllerProvider.notifier).start(learningPath.first);
+    await c.read(lessonControllerProvider.notifier).start(node);
     return c;
   }
 
-  test('start sets a correct first target on step 1', () async {
+  test('start loads a position whose move features the technique', () async {
     final c = await started();
     final s = c.read(lessonControllerProvider);
+    final solution = parseBoard(solutionStr);
+
     expect(s.game, isNotNull);
     expect(s.step, 1);
-    expect(s.hintTier, 1);
+    expect(s.totalSteps, greaterThanOrEqualTo(1));
     expect(s.target, isNotNull);
-    final solution = parseBoard(solutionStr);
+    expect(s.target!.technique, Technique.nakedSingle);
     expect(s.target!.digit, solution[s.target!.cell]);
+    expect(s.game!.values[s.target!.cell], 0);
   });
 
   test('a wrong placement nudges and does not advance', () async {
@@ -53,12 +64,12 @@ void main() {
 
     final s = c.read(lessonControllerProvider);
     expect(s.feedback, isNotNull);
-    expect(s.game!.values[t.cell], 0, reason: 'wrong digit is not placed');
+    expect(s.game!.values[t.cell], 0);
     expect(s.step, 1);
+    expect(s.completed, isFalse);
   });
 
-  test('a correct placement advances to the next step with a fresh target',
-      () async {
+  test('the technique move advances (or finishes)', () async {
     final c = await started();
     final n = c.read(lessonControllerProvider.notifier);
     final t = c.read(lessonControllerProvider).target!;
@@ -67,11 +78,11 @@ void main() {
     n.input(t.digit);
 
     final s = c.read(lessonControllerProvider);
-    expect(s.game!.values[t.cell], t.digit);
-    expect(s.step, 2);
-    expect(s.feedback, isNull);
-    expect(s.target, isNotNull);
-    expect(s.hintTier, 1, reason: 'hint resets each step');
+    expect(s.step == 2 || s.completed, isTrue);
+    if (!s.completed) {
+      expect(s.target!.technique, Technique.nakedSingle);
+      expect(s.hintTier, 1, reason: 'hint resets each step');
+    }
   });
 
   test('requestHint escalates the tier and clamps at 3', () async {
@@ -84,11 +95,12 @@ void main() {
     expect(c.read(lessonControllerProvider).hintTier, 3);
   });
 
-  test('completing all steps marks the node done', () async {
+  test('working through every position marks the node done', () async {
     final c = await started();
     final n = c.read(lessonControllerProvider.notifier);
 
-    for (var i = 0; i < kLessonSteps; i++) {
+    var guard = 0;
+    while (!c.read(lessonControllerProvider).completed && guard++ < 12) {
       final t = c.read(lessonControllerProvider).target!;
       n.select(t.cell);
       n.input(t.digit);
@@ -97,6 +109,6 @@ void main() {
     expect(c.read(lessonControllerProvider).completed, isTrue);
     await Future<void>.delayed(const Duration(milliseconds: 10));
     final done = await c.read(learningRepositoryProvider).completed();
-    expect(done, contains(learningPath.first.id));
+    expect(done, contains('drill'));
   });
 }
