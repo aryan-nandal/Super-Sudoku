@@ -4,6 +4,7 @@ import 'daily_completion_repository.dart';
 import 'db/app_database.dart';
 import 'game_results_repository.dart';
 import 'game_save_repository.dart';
+import 'learning_repository.dart';
 import 'settings_repository.dart';
 
 /// The app database, or null when it can't be opened (e.g. web without the
@@ -44,4 +45,13 @@ final gameResultsStreamProvider = StreamProvider<List<GameResultRecord>>(
 final dailyCompletionsStreamProvider =
     StreamProvider<List<DailyCompletionRecord>>(
   (ref) => ref.watch(dailyCompletionRepositoryProvider).watchAll(),
+);
+
+final learningRepositoryProvider = Provider<LearningRepository>(
+  (ref) => LearningRepository(ref.watch(appDatabaseProvider)),
+);
+
+/// Live set of completed lesson-node ids.
+final lessonProgressStreamProvider = StreamProvider<Set<String>>(
+  (ref) => ref.watch(learningRepositoryProvider).watchCompleted(),
 );

@@ -59,8 +59,24 @@ class GameResults extends Table {
   TextColumn get date => text()(); // yyyy-mm-dd
 }
 
+/// Completed learning-path lesson nodes (one row per completed node).
+@DataClassName('LessonProgressRow')
+class LessonProgress extends Table {
+  TextColumn get nodeId => text()();
+  DateTimeColumn get completedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {nodeId};
+}
+
 @DriftDatabase(
-  tables: [KeyValueEntries, GameSaves, DailyCompletions, GameResults],
+  tables: [
+    KeyValueEntries,
+    GameSaves,
+    DailyCompletions,
+    GameResults,
+    LessonProgress,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
@@ -80,13 +96,14 @@ class AppDatabase extends _$AppDatabase {
         );
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) => m.createAll(),
         onUpgrade: (m, from, to) async {
           if (from < 2) await m.createTable(gameResults);
+          if (from < 3) await m.createTable(lessonProgress);
         },
       );
 }

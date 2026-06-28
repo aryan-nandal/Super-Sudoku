@@ -1761,6 +1761,228 @@ class GameResultsCompanion extends UpdateCompanion<GameResultRow> {
   }
 }
 
+class $LessonProgressTable extends LessonProgress
+    with TableInfo<$LessonProgressTable, LessonProgressRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LessonProgressTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _nodeIdMeta = const VerificationMeta('nodeId');
+  @override
+  late final GeneratedColumn<String> nodeId = GeneratedColumn<String>(
+    'node_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _completedAtMeta = const VerificationMeta(
+    'completedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+    'completed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [nodeId, completedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'lesson_progress';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LessonProgressRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('node_id')) {
+      context.handle(
+        _nodeIdMeta,
+        nodeId.isAcceptableOrUnknown(data['node_id']!, _nodeIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nodeIdMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+        _completedAtMeta,
+        completedAt.isAcceptableOrUnknown(
+          data['completed_at']!,
+          _completedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_completedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {nodeId};
+  @override
+  LessonProgressRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LessonProgressRow(
+      nodeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}node_id'],
+      )!,
+      completedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}completed_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LessonProgressTable createAlias(String alias) {
+    return $LessonProgressTable(attachedDatabase, alias);
+  }
+}
+
+class LessonProgressRow extends DataClass
+    implements Insertable<LessonProgressRow> {
+  final String nodeId;
+  final DateTime completedAt;
+  const LessonProgressRow({required this.nodeId, required this.completedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['node_id'] = Variable<String>(nodeId);
+    map['completed_at'] = Variable<DateTime>(completedAt);
+    return map;
+  }
+
+  LessonProgressCompanion toCompanion(bool nullToAbsent) {
+    return LessonProgressCompanion(
+      nodeId: Value(nodeId),
+      completedAt: Value(completedAt),
+    );
+  }
+
+  factory LessonProgressRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LessonProgressRow(
+      nodeId: serializer.fromJson<String>(json['nodeId']),
+      completedAt: serializer.fromJson<DateTime>(json['completedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'nodeId': serializer.toJson<String>(nodeId),
+      'completedAt': serializer.toJson<DateTime>(completedAt),
+    };
+  }
+
+  LessonProgressRow copyWith({String? nodeId, DateTime? completedAt}) =>
+      LessonProgressRow(
+        nodeId: nodeId ?? this.nodeId,
+        completedAt: completedAt ?? this.completedAt,
+      );
+  LessonProgressRow copyWithCompanion(LessonProgressCompanion data) {
+    return LessonProgressRow(
+      nodeId: data.nodeId.present ? data.nodeId.value : this.nodeId,
+      completedAt: data.completedAt.present
+          ? data.completedAt.value
+          : this.completedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LessonProgressRow(')
+          ..write('nodeId: $nodeId, ')
+          ..write('completedAt: $completedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(nodeId, completedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LessonProgressRow &&
+          other.nodeId == this.nodeId &&
+          other.completedAt == this.completedAt);
+}
+
+class LessonProgressCompanion extends UpdateCompanion<LessonProgressRow> {
+  final Value<String> nodeId;
+  final Value<DateTime> completedAt;
+  final Value<int> rowid;
+  const LessonProgressCompanion({
+    this.nodeId = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LessonProgressCompanion.insert({
+    required String nodeId,
+    required DateTime completedAt,
+    this.rowid = const Value.absent(),
+  }) : nodeId = Value(nodeId),
+       completedAt = Value(completedAt);
+  static Insertable<LessonProgressRow> custom({
+    Expression<String>? nodeId,
+    Expression<DateTime>? completedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (nodeId != null) 'node_id': nodeId,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LessonProgressCompanion copyWith({
+    Value<String>? nodeId,
+    Value<DateTime>? completedAt,
+    Value<int>? rowid,
+  }) {
+    return LessonProgressCompanion(
+      nodeId: nodeId ?? this.nodeId,
+      completedAt: completedAt ?? this.completedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (nodeId.present) {
+      map['node_id'] = Variable<String>(nodeId.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LessonProgressCompanion(')
+          ..write('nodeId: $nodeId, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1772,6 +1994,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $GameResultsTable gameResults = $GameResultsTable(this);
+  late final $LessonProgressTable lessonProgress = $LessonProgressTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1781,6 +2004,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     gameSaves,
     dailyCompletions,
     gameResults,
+    lessonProgress,
   ];
 }
 
@@ -2718,6 +2942,157 @@ typedef $$GameResultsTableProcessedTableManager =
       GameResultRow,
       PrefetchHooks Function()
     >;
+typedef $$LessonProgressTableCreateCompanionBuilder =
+    LessonProgressCompanion Function({
+      required String nodeId,
+      required DateTime completedAt,
+      Value<int> rowid,
+    });
+typedef $$LessonProgressTableUpdateCompanionBuilder =
+    LessonProgressCompanion Function({
+      Value<String> nodeId,
+      Value<DateTime> completedAt,
+      Value<int> rowid,
+    });
+
+class $$LessonProgressTableFilterComposer
+    extends Composer<_$AppDatabase, $LessonProgressTable> {
+  $$LessonProgressTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get nodeId => $composableBuilder(
+    column: $table.nodeId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LessonProgressTableOrderingComposer
+    extends Composer<_$AppDatabase, $LessonProgressTable> {
+  $$LessonProgressTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get nodeId => $composableBuilder(
+    column: $table.nodeId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LessonProgressTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LessonProgressTable> {
+  $$LessonProgressTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get nodeId =>
+      $composableBuilder(column: $table.nodeId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$LessonProgressTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LessonProgressTable,
+          LessonProgressRow,
+          $$LessonProgressTableFilterComposer,
+          $$LessonProgressTableOrderingComposer,
+          $$LessonProgressTableAnnotationComposer,
+          $$LessonProgressTableCreateCompanionBuilder,
+          $$LessonProgressTableUpdateCompanionBuilder,
+          (
+            LessonProgressRow,
+            BaseReferences<
+              _$AppDatabase,
+              $LessonProgressTable,
+              LessonProgressRow
+            >,
+          ),
+          LessonProgressRow,
+          PrefetchHooks Function()
+        > {
+  $$LessonProgressTableTableManager(
+    _$AppDatabase db,
+    $LessonProgressTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LessonProgressTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LessonProgressTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LessonProgressTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> nodeId = const Value.absent(),
+                Value<DateTime> completedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LessonProgressCompanion(
+                nodeId: nodeId,
+                completedAt: completedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String nodeId,
+                required DateTime completedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => LessonProgressCompanion.insert(
+                nodeId: nodeId,
+                completedAt: completedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LessonProgressTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LessonProgressTable,
+      LessonProgressRow,
+      $$LessonProgressTableFilterComposer,
+      $$LessonProgressTableOrderingComposer,
+      $$LessonProgressTableAnnotationComposer,
+      $$LessonProgressTableCreateCompanionBuilder,
+      $$LessonProgressTableUpdateCompanionBuilder,
+      (
+        LessonProgressRow,
+        BaseReferences<_$AppDatabase, $LessonProgressTable, LessonProgressRow>,
+      ),
+      LessonProgressRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2730,4 +3105,6 @@ class $AppDatabaseManager {
       $$DailyCompletionsTableTableManager(_db, _db.dailyCompletions);
   $$GameResultsTableTableManager get gameResults =>
       $$GameResultsTableTableManager(_db, _db.gameResults);
+  $$LessonProgressTableTableManager get lessonProgress =>
+      $$LessonProgressTableTableManager(_db, _db.lessonProgress);
 }
