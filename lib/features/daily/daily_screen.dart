@@ -9,6 +9,7 @@ import '../../domain/daily.dart';
 import '../../shared/widgets/app_background.dart';
 import '../../shared/widgets/glass_surface.dart';
 import '../game/game_controller.dart';
+import '../game/widgets/board_hero.dart';
 import '../game/widgets/conflict_banner.dart';
 import '../game/widgets/game_top_bar.dart';
 import '../game/widgets/hint_banner.dart';
@@ -112,20 +113,22 @@ class _DailyScreenState extends ConsumerState<DailyScreen> {
             onDismiss: notifier.dismissHint,
           ),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Center(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
               child: AspectRatio(
                 aspectRatio: 1,
-                child: SudokuBoard(
-                  game: game,
-                  onCellTap: notifier.select,
-                  highlightPeers: settings.highlightPeers,
-                  highlightDuplicates: settings.highlightDuplicates,
-                  autoCandidateNotes: settings.autoCandidateNotes,
-                  hintCell: state.hintStep?.cell,
-                  hintTier: state.hintTier,
-                  colorBlindMode: settings.colorBlindMode,
+                child: BoardHero(
+                  child: SudokuBoard(
+                    game: game,
+                    onCellTap: notifier.select,
+                    highlightPeers: settings.highlightPeers,
+                    highlightDuplicates: settings.highlightDuplicates,
+                    autoCandidateNotes: settings.autoCandidateNotes,
+                    hintCell: state.hintStep?.cell,
+                    hintTier: state.hintTier,
+                    colorBlindMode: settings.colorBlindMode,
+                  ),
                 ),
               ),
             ),
