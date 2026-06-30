@@ -2,6 +2,12 @@
 
 > The ultimate cognitive gym — a welcoming, ad-free Sudoku built around an honest puzzle engine, a global daily, and a real learning ramp.
 
+> [!IMPORTANT]
+> 🛠️ **[How this was built → Product Automation Pipeline](docs/PRODUCT_AUTOMATION_DESIGN.md)**
+> — a design doc on the end-to-end approach behind this app: **market analysis →
+> strategy → architecture → TDD engineering → verification → live deploy**, run as
+> a single repeatable, test-driven pipeline.
+
 A cross-platform Flutter app by **Ninety Nine Labs** (`com.ninetyninelabs`). The
 positioning: mass-market on the surface (anyone can pick up the Daily in ten
 seconds) with a deep learning ramp and high skill ceiling underneath.
