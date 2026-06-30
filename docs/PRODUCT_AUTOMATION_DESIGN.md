@@ -40,17 +40,29 @@ every decision captured; and a pipeline I can re-run for a different product.
 
 ## 3. The pipeline (end-to-end)
 
+```mermaid
+flowchart LR
+    A["Market Analysis<br/><i>competitor teardown, gap analysis</i>"]
+    B["Requirements & Strategy<br/><i>positioning, monetization, MVP scope</i>"]
+    C["Architecture & Tech<br/><i>locked stack, swappable seams</i>"]
+    D["Engineering · TDD<br/><i>red → green → refactor</i>"]
+    E["Verification<br/><i>unit · widget · e2e · run it</i>"]
+    F["Delivery & Deploy<br/><i>branch → PR → merge → live</i>"]
+    A --> B --> C --> D --> E --> F
+    E -. "run it · screenshot · smoke-test → adjust" .-> D
+    F -. "learnings feed back into strategy" .-> B
 ```
-  MARKET            REQUIREMENTS &        ARCHITECTURE          ENGINEERING            DELIVERY
-  ANALYSIS    →     STRATEGY        →     & TECH        →       (TDD loop)      →      & DEPLOY
-  ────────          ────────────          ──────────           ──────────             ────────
-  competitor        positioning,          locked stack,        red → green →          branch → PR →
-  teardown,         monetization,         principles,          refactor, per          squash-merge,
-  gap analysis      MVP scope             swappable seams      increment              live deploy
-       │                  │                    │                    │                      │
-       └──────────────────┴─────── feedback loops ──────────────────┴──────────────────────┘
-                         (run it, screenshot it, smoke-test it → adjust)
+
+<details><summary>Plain-text version (if the diagram doesn't render)</summary>
+
 ```
+Market Analysis → Requirements & Strategy → Architecture & Tech
+   → Engineering (TDD) → Verification → Delivery & Deploy
+        ↑__ verify loop (run/screenshot/smoke-test) __|
+   |__ learnings feed back into strategy __________________|
+```
+
+</details>
 
 Each stage produces a durable **artifact** that the next stage consumes:
 
