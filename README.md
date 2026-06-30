@@ -12,6 +12,8 @@ A cross-platform Flutter app by **Ninety Nine Labs** (`com.ninetyninelabs`). The
 positioning: mass-market on the surface (anyone can pick up the Daily in ten
 seconds) with a deep learning ramp and high skill ceiling underneath.
 
+play - https://super-sudoku-99labs.web.app/
+
 **Monetization:** free global Daily + shareable result card forever, plus a single
 **₹9.9 one-time unlock** for depth (unlimited puzzles, unlimited hints, learning
 path, deep analytics). **No ads, ever. No subscription.**
